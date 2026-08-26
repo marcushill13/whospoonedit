@@ -135,6 +135,16 @@ async function route(request, env)
 			vote[1].toUpperCase(), decodeURIComponent(vote[2]), request, env));
 	}
 
+	const memberDrops = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/members\/([^/]+)\/drops$/);
+	if (memberDrops && request.method === 'GET')
+	{
+		return withCors(await dropsFor(
+			memberDrops[1].toUpperCase(),
+			decodeURIComponent(memberDrops[2]),
+			url.searchParams.get('sort'),
+			env));
+	}
+
 	const search = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/search$/);
 	if (search && request.method === 'GET')
 	{
@@ -939,6 +949,65 @@ async function acceptClaim(claim, env)
 	]);
 
 	await refreshTotals(claim.group_code, claim.rsn, env);
+}
+
+/**
+ * One member's drops, for looking at somebody's luck on its own.
+ *
+ * Newest first by default, because the commonest question about a person is what they have just had.
+ * Sorted by luck when asked, which is the other question: what is the best thing they have ever done.
+ */
+async function dropsFor(code, rsn, sort, env)
+{
+	const group = await loadGroup(code, env);
+	if (!group)
+	{
+		return json({ error: 'No group with that code' }, 404);
+	}
+
+	const member = await env.DB.prepare(
+		'SELECT rsn, spoons, scored, avg_share AS avgShare FROM members'
+		+ ' WHERE group_code = ? AND rsn = ? COLLATE NOCASE')
+		.bind(code, rsn)
+		.first();
+
+	if (!member)
+	{
+		return json({ error: 'Nobody by that name is in this group' }, 404);
+	}
+
+	// Unscored drops go last whichever way it is sorted. Having something with no kill count recorded
+	// is not a stroke of luck and must not be presented among them.
+	const order = sort === 'luck'
+		? 'share IS NULL, share ASC, obtained_at DESC'
+		: 'obtained_at DESC';
+
+	const rows = await env.DB.prepare(
+		'SELECT item_name AS itemName, item_id AS itemId, source, kill_count AS killCount,'
+		+ ' denominator, share, obtained_at AS obtainedAt, claimed FROM drops'
+		+ ' WHERE group_code = ? AND rsn = ? COLLATE NOCASE'
+		+ ' ORDER BY ' + order + ' LIMIT 200')
+		.bind(code, member.rsn)
+		.all();
+
+	return json({
+		rsn: member.rsn,
+		spoons: member.spoons,
+		scored: member.scored,
+		avgShare: member.avgShare / SHARE_SCALE,
+		sort: sort === 'luck' ? 'luck' : 'recent',
+		drops: (rows.results ?? []).map(row => ({
+			rsn: member.rsn,
+			itemName: row.itemName,
+			itemId: row.itemId,
+			source: row.source,
+			killCount: row.killCount,
+			denominator: row.denominator === null ? null : row.denominator / RATE_SCALE,
+			share: row.share === null ? null : row.share / SHARE_SCALE,
+			claimed: row.claimed === 1,
+			obtainedAt: row.obtainedAt
+		}))
+	});
 }
 
 async function memberFor(code, request, env)

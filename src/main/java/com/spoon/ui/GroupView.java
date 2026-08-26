@@ -76,7 +76,8 @@ public class GroupView extends JPanel
 		Runnable onShareEarlier,
 		Runnable onImport,
 		ClaimsPanel claims,
-		Runnable onClaim)
+		Runnable onClaim,
+		Consumer<String> onOpenMember)
 	{
 		setLayout(new BorderLayout());
 		setBackground(Theme.BACKGROUND);
@@ -114,7 +115,7 @@ public class GroupView extends JPanel
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
 		body.add(Cards.gap(4));
-		body.add(leaderboardList(leaderboard, yourName, medal));
+		body.add(leaderboardList(leaderboard, yourName, medal, onOpenMember));
 
 		body.add(Cards.gap(16));
 		body.add(claimsHeader(onClaim));
@@ -323,7 +324,8 @@ public class GroupView extends JPanel
 	}
 
 	private JPanel leaderboardList(
-		List<Standing> leaderboard, String yourName, java.util.function.IntFunction<JLabel> medal)
+		List<Standing> leaderboard, String yourName, java.util.function.IntFunction<JLabel> medal,
+		Consumer<String> onOpenMember)
 	{
 		JPanel list = new JPanel();
 		list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -338,7 +340,7 @@ public class GroupView extends JPanel
 
 		for (Standing standing : leaderboard)
 		{
-			list.add(standingRow(standing, yourName, medal));
+			list.add(standingRow(standing, yourName, medal, onOpenMember));
 			list.add(Cards.gap(3));
 		}
 
@@ -346,7 +348,8 @@ public class GroupView extends JPanel
 	}
 
 	private JPanel standingRow(
-		Standing standing, String yourName, java.util.function.IntFunction<JLabel> medal)
+		Standing standing, String yourName, java.util.function.IntFunction<JLabel> medal,
+		Consumer<String> onOpenMember)
 	{
 		boolean you = standing.getRsn().equalsIgnoreCase(yourName == null ? "" : yourName);
 
@@ -388,6 +391,30 @@ public class GroupView extends JPanel
 		spoons.setFont(FontManager.getRunescapeBoldFont().deriveFont(Font.BOLD, 15f));
 		spoons.setForeground(standing.getPlace() <= 3 ? MEDALS[standing.getPlace() - 1] : Theme.TEXT);
 		row.add(spoons, BorderLayout.EAST);
+
+		// The whole row opens them, not just the name: a name is a small target in a sidebar, and
+		// everything on the row is about that person anyway.
+		row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+		row.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent event)
+			{
+				onOpenMember.accept(standing.getRsn());
+			}
+
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent event)
+			{
+				row.setBackground(Theme.CARD_HOVER);
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent event)
+			{
+				row.setBackground(Theme.CARD);
+			}
+		});
 
 		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
 		return row;

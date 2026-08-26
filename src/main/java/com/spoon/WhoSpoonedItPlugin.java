@@ -12,6 +12,7 @@ import com.spoon.ui.CreateGroupPanel;
 import com.spoon.ui.ClaimPanel;
 import com.spoon.ui.ClaimsPanel;
 import com.spoon.ui.GroupView;
+import com.spoon.ui.MemberView;
 import com.spoon.ui.JoinGroupPanel;
 import com.spoon.ui.Medals;
 import com.spoon.ui.SpoonPanel;
@@ -316,7 +317,8 @@ public class WhoSpoonedItPlugin extends Plugin
 					() -> shareEarlier(code),
 					() -> importFromDiscord(code),
 					claimsPanel(code),
-					() -> claimADrop(code));
+					() -> claimADrop(code),
+					who -> openMember(code, who, "recent"));
 
 				panel.show(view);
 				this.openView = view;
@@ -426,6 +428,50 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		sender.nudge();
+	}
+
+	/**
+	 * One member's drops, on their own.
+	 * <p>
+	 * The screen is drawn from the same answer that fills it, so the totals at the top and the list
+	 * below can never disagree — which they would if the panel were built from the leaderboard and then
+	 * filled from a second call.
+	 */
+	private void openMember(String code, String rsn, String sort)
+	{
+		openView = null;
+		openClaims = null;
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<SpoonApi.MemberDrops> result =
+				api.memberDrops(config.serverUrl(), code, rsn, sort);
+
+			SwingUtilities.invokeLater(() ->
+			{
+				if (!result.ok())
+				{
+					warn(result.getError());
+					openGroup(code);
+					return;
+				}
+
+				SpoonApi.MemberDrops drops = result.getValue();
+
+				MemberView view = new MemberView(
+					drops.getRsn(),
+					drops.getSpoons(),
+					drops.getScored(),
+					drops.getAvgShare(),
+					drops.getSort(),
+					itemManager,
+					chosen -> openMember(code, rsn, chosen),
+					() -> openGroup(code));
+
+				view.show(drops.getDrops());
+				panel.show(view);
+			});
+		});
 	}
 
 	/**

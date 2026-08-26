@@ -329,6 +329,55 @@ public class SpoonApi
 		}
 	}
 
+	/**
+	 * One member's drops, for looking at somebody's luck on its own.
+	 *
+	 * @param sort "recent" or "luck"
+	 */
+	public Result<MemberDrops> memberDrops(String baseUrl, String code, String rsn, String sort)
+	{
+		HttpUrl url = url(baseUrl, "v1", "groups", code, "members", rsn, "drops")
+			.newBuilder()
+			.addQueryParameter("sort", sort)
+			.build();
+
+		Request request = new Request.Builder().url(url).get().build();
+
+		try (Response response = httpClient.newCall(request).execute())
+		{
+			ResponseBody responseBody = response.body();
+			String text = responseBody == null ? "" : responseBody.string();
+
+			if (!response.isSuccessful())
+			{
+				String message = messageIn(text, "Could not load those drops");
+				return response.code() == 404 ? Result.gone(message) : Result.failed(message);
+			}
+
+			return Result.of(gson.fromJson(text, MemberDrops.class));
+		}
+		catch (IOException e)
+		{
+			return Result.failed("Could not reach the server");
+		}
+		catch (JsonSyntaxException e)
+		{
+			return Result.failed("The server sent something unreadable");
+		}
+	}
+
+	/** One member, their totals, and their drops in the order asked for. */
+	@lombok.Data
+	public static class MemberDrops
+	{
+		private String rsn = "";
+		private int spoons;
+		private int scored;
+		private double avgShare = 0.5;
+		private String sort = "recent";
+		private List<Holder> drops = new ArrayList<>();
+	}
+
 	/** Everyone in the group who has one item, luckiest first. The question this is all named after. */
 	public Result<List<Holder>> whoSpoonedIt(String baseUrl, String code, String itemName)
 	{
