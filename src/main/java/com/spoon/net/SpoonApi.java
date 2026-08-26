@@ -168,8 +168,18 @@ public class SpoonApi
 
 			if (!response.isSuccessful())
 			{
-				// The service's own wording matters here more than anywhere: it is what tells someone to
-				// invite the bot, or that the channel could not be read.
+				// A group with no bot in its server is not a failure, it is the step before this one, and
+				// the answer carries what is needed to take it. Handed back as a result so the plugin can
+				// offer the invite rather than print a message telling someone to go and find it.
+				if (response.code() == 409)
+				{
+					Import needsBot = gson.fromJson(text, Import.class);
+					if (needsBot != null && needsBot.isNeedsBot())
+					{
+						return Result.of(needsBot);
+					}
+				}
+
 				return Result.failed(messageIn(text, "Could not import"));
 			}
 
@@ -205,6 +215,15 @@ public class SpoonApi
 
 		/** Names seen in the channel that are not in this group, and how many drops each had. */
 		private java.util.Map<String, Integer> unmatched = new java.util.LinkedHashMap<>();
+
+		/** There is no bot in the group's Discord server yet, so there is nothing to read. */
+		private boolean needsBot;
+
+		/** Where to send someone to put that right. */
+		private String invite;
+
+		/** What to type once the bot is in, with the group's own code already in it. */
+		private String linkCommand;
 	}
 
 	/** Everyone in the group who has one item, luckiest first. The question this is all named after. */

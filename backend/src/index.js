@@ -469,9 +469,13 @@ async function importFromDiscord(code, request, env)
 	{
 		if (!group.discord_channel_id)
 		{
+			// Answered with the way forward rather than only the problem: the plugin turns this into a
+			// button that opens Discord, instead of a message telling somebody to go and find it.
 			return json({
-				error: 'No Discord channel is linked to this group yet. '
-					+ 'Invite the bot, then type /spoons link ' + code + ' in your Dink channel.'
+				error: 'The bot is not in your Discord server yet.',
+				needsBot: true,
+				invite: env.DISCORD_APPLICATION_ID ? inviteUrl(env.DISCORD_APPLICATION_ID) : null,
+				linkCommand: '/spoons link ' + code
 			}, 409);
 		}
 

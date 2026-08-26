@@ -55,6 +55,7 @@ public class GroupView extends JPanel
 	private Group group;
 	private boolean creator;
 	private Runnable onLeave;
+	private Runnable onImport;
 
 	/**
 	 * @param medal     builds a label carrying the spoon for a place; it fills itself once the game's
@@ -92,6 +93,7 @@ public class GroupView extends JPanel
 		this.group = group;
 		this.creator = creator;
 		this.onLeave = onLeave;
+		this.onImport = onImport;
 
 		codeHolder.setLayout(new BoxLayout(codeHolder, BoxLayout.Y_AXIS));
 		codeHolder.setBackground(Theme.BACKGROUND);
@@ -106,12 +108,6 @@ public class GroupView extends JPanel
 		earlierHolder.setAlignmentX(Component.LEFT_ALIGNMENT);
 		body.add(earlierHolder);
 		setEarlierDrops(earlierDrops);
-
-		if (creator)
-		{
-			body.add(Cards.gap(8));
-			body.add(importRow(onImport));
-		}
 
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
@@ -151,36 +147,6 @@ public class GroupView extends JPanel
 		row.add(refresh);
 
 		return row;
-	}
-
-	/**
-	 * The offer to bring in what the group already has sitting in Discord.
-	 * <p>
-	 * Shown only to whoever made the group, because one person's import becomes everyone's history.
-	 * Optional in every sense: a group works perfectly without ever pressing this.
-	 */
-	private JPanel importRow(Runnable onImport)
-	{
-		JPanel card = Cards.card();
-
-		JLabel heading = new JLabel("Import from Discord");
-		heading.setFont(Theme.heading());
-		heading.setForeground(Theme.GOLD);
-		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
-		card.add(heading);
-
-		card.add(Cards.gap(2));
-		card.add(Cards.muted("If your group posts Dink messages to a channel, the drops in it can be "
-			+ "brought in. You will be shown what was found before anything is kept."));
-
-		card.add(Cards.gap(6));
-		JButton go = Cards.button("Look for history");
-		go.setAlignmentX(Component.LEFT_ALIGNMENT);
-		go.addActionListener(event -> onImport.run());
-		card.add(go);
-
-		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, card.getPreferredSize().height));
-		return card;
 	}
 
 	/**
@@ -299,7 +265,24 @@ public class GroupView extends JPanel
 		card.add(Cards.gap(2));
 		card.add(Cards.muted("Share this so people can join. Made by " + group.getCreatorRsn() + "."));
 
-		card.add(Cards.gap(6));
+		if (creator)
+		{
+			// In here with the code and the delete button, because it belongs to the same rare visit:
+			// set the group up, share the code, bring in the history, and then never look again.
+			card.add(Cards.gap(8));
+			card.add(Cards.sectionLabel("Import from Discord"));
+			card.add(Cards.gap(2));
+			card.add(Cards.muted("If your group posts Dink messages to a channel, the drops in it can "
+				+ "be brought in. You are shown what was found before anything is kept."));
+
+			card.add(Cards.gap(4));
+			JButton go = Cards.button("Look for history");
+			go.setAlignmentX(Component.LEFT_ALIGNMENT);
+			go.addActionListener(event -> onImport.run());
+			card.add(go);
+		}
+
+		card.add(Cards.gap(8));
 		JButton leave = Cards.button(creator ? "Delete group" : "Leave group");
 		leave.setAlignmentX(Component.LEFT_ALIGNMENT);
 		leave.addActionListener((ActionEvent event) -> onLeave.run());

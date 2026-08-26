@@ -444,6 +444,13 @@ public class WhoSpoonedItPlugin extends Plugin
 				}
 
 				SpoonApi.Import found = look.getValue();
+
+				if (found.isNeedsBot())
+				{
+					offerInvite(found);
+					return;
+				}
+
 				if (found.getMatched() == 0)
 				{
 					warn(describe(found) + System.lineSeparator() + System.lineSeparator()
@@ -481,6 +488,37 @@ public class WhoSpoonedItPlugin extends Plugin
 				});
 			});
 		});
+	}
+
+	/**
+	 * Offers to open Discord so the bot can be added, rather than telling someone to go and do it.
+	 * <p>
+	 * Through LinkBrowser, which is the sanctioned way for a plugin to open a web page — and the only
+	 * one. Opening a local path is restricted on the plugin hub; a link is not.
+	 */
+	private void offerInvite(SpoonApi.Import found)
+	{
+		if (found.getInvite() == null)
+		{
+			warn("This service has no Discord bot set up.");
+			return;
+		}
+
+		int answer = javax.swing.JOptionPane.showConfirmDialog(
+			panel,
+			"The bot is not in your Discord server yet." + System.lineSeparator()
+				+ System.lineSeparator()
+				+ "Open Discord to add it? You will need someone who can manage the server."
+				+ System.lineSeparator() + System.lineSeparator()
+				+ "Once it is in, type this in the channel your Dink messages go to:"
+				+ System.lineSeparator() + "    " + found.getLinkCommand(),
+			"Who Spooned It?",
+			javax.swing.JOptionPane.YES_NO_OPTION);
+
+		if (answer == javax.swing.JOptionPane.YES_OPTION)
+		{
+			net.runelite.client.util.LinkBrowser.browse(found.getInvite());
+		}
 	}
 
 	/** What the import found, in words rather than numbers on their own. */
