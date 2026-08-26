@@ -61,6 +61,12 @@ public class ActionTile extends JPanel
 		});
 	}
 
+	/** Runs the tile's action, as a click does. Here so a test can press it without a mouse. */
+	void press()
+	{
+		onClick.run();
+	}
+
 	@Override
 	protected void paintComponent(Graphics g)
 	{

@@ -192,8 +192,11 @@ public class SpoonPanel extends PluginPanel
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
 
-		row.add(new ActionTile("Create", onCreate));
-		row.add(new ActionTile("Join", onJoin));
+		// Called through rather than handed over. This panel is built by injection before the plugin
+		// has said what the buttons do, so passing onCreate directly would hand each tile the empty
+		// default and keep it for good — which is exactly what happened: two buttons that did nothing.
+		row.add(new ActionTile("Create", () -> onCreate.run()));
+		row.add(new ActionTile("Join", () -> onJoin.run()));
 
 		return row;
 	}
