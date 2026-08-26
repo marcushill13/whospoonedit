@@ -514,6 +514,11 @@ public class WhoSpoonedItPlugin extends Plugin
 		openView = null;
 		openClaims = null;
 
+		// Something on screen before the request goes out. A press that leaves the old screen sitting
+		// there for a second reads as a press that did not register, and the natural response to that
+		// is to press again.
+		busy("Loading " + rsn + "...");
+
 		executor.execute(() ->
 		{
 			SpoonApi.Result<SpoonApi.MemberDrops> result =
@@ -887,6 +892,23 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		panel.showList();
+	}
+
+	/** A holding screen, so a press always does something visible at once. */
+	private void busy(String message)
+	{
+		javax.swing.JPanel waiting = new javax.swing.JPanel();
+		waiting.setLayout(new javax.swing.BoxLayout(waiting, javax.swing.BoxLayout.Y_AXIS));
+		waiting.setBackground(com.spoon.ui.Theme.BACKGROUND);
+		waiting.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 0, 0, 0));
+
+		javax.swing.JLabel label = new javax.swing.JLabel(message);
+		label.setFont(com.spoon.ui.Theme.body());
+		label.setForeground(com.spoon.ui.Theme.TEXT_MUTED);
+		label.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+		waiting.add(label);
+
+		panel.show(waiting);
 	}
 
 	private void warn(String message)

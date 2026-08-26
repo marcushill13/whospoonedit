@@ -93,6 +93,44 @@ public class KillCounts
 	}
 
 	/**
+	 * How many caskets of a tier have been opened.
+	 * <p>
+	 * The game keeps this, and it is the kill count of a clue: how many goes it took. Which key the
+	 * Chat Commands plugin files it under has changed with the wording of the message it reads, so
+	 * every plausible spelling is tried rather than one being assumed — a wrong guess here does not
+	 * fail loudly, it just quietly leaves every clue reward unscored.
+	 *
+	 * @param tier "hard", "master" and so on
+	 * @return the count, or -1 when nothing knows it
+	 */
+	public int forClueTier(String tier)
+	{
+		if (tier == null || tier.isEmpty())
+		{
+			return -1;
+		}
+
+		String[] candidates = {
+			"clue scroll (" + tier + ")",
+			tier + " treasure trails",
+			"treasure trails (" + tier + ")",
+			"reward casket (" + tier + ")",
+			tier
+		};
+
+		for (String key : candidates)
+		{
+			Integer count = configManager.getRSProfileConfiguration("killcount", key, int.class);
+			if (count != null && count > 0)
+			{
+				return count;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
 	 * The name the Chat Commands plugin files a boss under, which is not always the name the game uses
 	 * when it dies.
 	 */

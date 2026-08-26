@@ -1,5 +1,6 @@
 package com.spoon.track;
 
+import com.spoon.data.ClueRewards;
 import com.spoon.data.DropRates;
 import com.spoon.data.Luck;
 import com.spoon.data.Spoon;
@@ -34,6 +35,7 @@ public class ClogWatcher
 	private final ItemManager itemManager;
 	private final KillCounts killCounts;
 	private final DropRates dropRates;
+	private final ClueRewards clueRewards;
 
 	/** What died most recently, which is what a log slot moments later is assumed to have come from. */
 	private String lastSource;
@@ -44,11 +46,16 @@ public class ClogWatcher
 	};
 
 	@Inject
-	private ClogWatcher(ItemManager itemManager, KillCounts killCounts, DropRates dropRates)
+	private ClogWatcher(
+		ItemManager itemManager,
+		KillCounts killCounts,
+		DropRates dropRates,
+		ClueRewards clueRewards)
 	{
 		this.itemManager = itemManager;
 		this.killCounts = killCounts;
 		this.dropRates = dropRates;
+		this.clueRewards = clueRewards;
 	}
 
 	public void setOnCaptured(java.util.function.Consumer<Spoon> onCaptured)
@@ -74,6 +81,17 @@ public class ClogWatcher
 		if (npc != null && npc.getName() != null)
 		{
 			lastSource = npc.getName();
+		}
+	}
+
+	@Subscribe
+	public void onLootReceived(net.runelite.client.plugins.loottracker.LootReceived event)
+	{
+		// Chests and caskets, which never die at your feet and so never fire the other two. This is how
+		// a clue reward gets a source at all.
+		if (event.getName() != null)
+		{
+			lastSource = event.getName();
 		}
 	}
 
@@ -109,16 +127,31 @@ public class ClogWatcher
 		spoon.setObtainedAt(System.currentTimeMillis());
 		spoon.setSource(lastSource == null ? "" : lastSource);
 
-		// Identified against what this monster actually drops, which settles the item and its rarity in
-		// one pass and works for untradeables that a name lookup cannot find.
-		DropRates.Drop match = matchIn(lastSource, itemName);
-		spoon.setItemId(match == null ? -1 : match.itemId);
-		spoon.setDenominator(match == null ? -1 : match.denominator);
+		// A clue is not a monster: no kill count in the ordinary sense, but the game does keep how many
+		// caskets of that tier have been opened, which is the same question — how many goes it took.
+		String tier = ClueRewards.tierOf(lastSource);
 
-		int kc = killCounts.forSource(lastSource);
+		int kc;
+		double denominator;
+
+		if (tier != null)
+		{
+			kc = killCounts.forClueTier(tier);
+			denominator = clueRewards.denominatorFor(tier, itemName);
+			spoon.setItemId(-1);
+		}
+		else
+		{
+			// Identified against what this monster actually drops, which settles the item and its rarity
+			// in one pass and works for untradeables that a name lookup cannot find.
+			DropRates.Drop match = matchIn(lastSource, itemName);
+			spoon.setItemId(match == null ? -1 : match.itemId);
+			denominator = match == null ? -1 : match.denominator;
+			kc = killCounts.forSource(lastSource);
+		}
+
 		spoon.setKillCount(kc);
-
-		double denominator = spoon.getDenominator();
+		spoon.setDenominator(denominator);
 
 		// Anything missing leaves this at -1, which means "unscored" everywhere else. A clue scroll item
 		// has no monster and no kill count, and pretending otherwise would put a made-up number on a

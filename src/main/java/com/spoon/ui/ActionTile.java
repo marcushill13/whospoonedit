@@ -53,8 +53,11 @@ public class ActionTile extends JPanel
 				repaint();
 			}
 
+			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
+			// release land on the same component with the mouse not having moved between them, so a
+			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
 			@Override
-			public void mouseClicked(MouseEvent event)
+			public void mousePressed(MouseEvent event)
 			{
 				onClick.run();
 			}

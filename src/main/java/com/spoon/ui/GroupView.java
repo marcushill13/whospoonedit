@@ -270,8 +270,11 @@ public class GroupView extends JPanel
 
 		row.addMouseListener(new java.awt.event.MouseAdapter()
 		{
+			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
+			// release land on the same component with the mouse not having moved between them, so a
+			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
 			@Override
-			public void mouseClicked(java.awt.event.MouseEvent event)
+			public void mousePressed(java.awt.event.MouseEvent event)
 			{
 				codeOpen = !codeOpen;
 				renderCode();
@@ -397,8 +400,11 @@ public class GroupView extends JPanel
 		row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
 		row.addMouseListener(new java.awt.event.MouseAdapter()
 		{
+			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
+			// release land on the same component with the mouse not having moved between them, so a
+			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
 			@Override
-			public void mouseClicked(java.awt.event.MouseEvent event)
+			public void mousePressed(java.awt.event.MouseEvent event)
 			{
 				onOpenMember.accept(standing.getRsn());
 			}
