@@ -63,6 +63,14 @@ async function route(request, env)
 		return discordInteraction(request, env);
 	}
 
+	// Says whether the stored bot token still works, and nothing else about it. Here because a stale
+	// token and a missing permission produce very similar symptoms and very different fixes, and
+	// telling them apart by pressing a button in a game client is a slow way to find out.
+	if (path === '/discord/health' && request.method === 'GET')
+	{
+		return withCors(await discordHealth(env));
+	}
+
 	// Run once after deploying, to tell Discord what the command looks like.
 	if (path === '/discord/register' && request.method === 'POST')
 	{
@@ -636,6 +644,45 @@ async function discordInteraction(request, env)
 	}
 
 	return json(await handleInteraction(interaction, env));
+}
+
+/**
+ * Whether the bot can still talk to Discord.
+ *
+ * Reveals only the bot's own name, which is public to anyone in a server it is in. The token itself
+ * is never echoed, and nothing here says anything about any group.
+ */
+async function discordHealth(env)
+{
+	if (!env.DISCORD_BOT_TOKEN)
+	{
+		return json({ ok: false, reason: 'No bot token is set' });
+	}
+
+	try
+	{
+		const response = await fetch('https://discord.com/api/v10/users/@me', {
+			headers: { authorization: `Bot ${env.DISCORD_BOT_TOKEN}` }
+		});
+
+		if (!response.ok)
+		{
+			return json({
+				ok: false,
+				status: response.status,
+				reason: response.status === 401
+					? 'Discord rejected the stored token. It has probably been reset since it was saved.'
+					: 'Discord said ' + response.status
+			});
+		}
+
+		const bot = await response.json();
+		return json({ ok: true, bot: bot.username, id: bot.id });
+	}
+	catch (error)
+	{
+		return json({ ok: false, reason: 'Could not reach Discord' });
+	}
 }
 
 async function registerSlashCommand(request, env)
