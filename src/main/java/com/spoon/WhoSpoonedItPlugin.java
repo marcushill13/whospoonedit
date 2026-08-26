@@ -401,6 +401,14 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		groups.shareEverything(code);
+
+		// Gone from the screen at once. The send follows in a few seconds, and waiting for it would
+		// leave the card offering what has just been handed over.
+		if (openView != null)
+		{
+			openView.setEarlierDrops(0);
+		}
+
 		sender.nudge();
 	}
 

@@ -33,6 +33,13 @@ public class GroupView extends JPanel
 
 	private final JPanel searchResults = new JPanel();
 
+	/** Held so the offer to share earlier drops can come and go without rebuilding the screen. */
+	private final JPanel earlierHolder = new JPanel();
+
+	private Runnable onShareEarlier = () ->
+	{
+	};
+
 	/** Held so the code block can be opened and shut without rebuilding the screen. */
 	private final JPanel codeHolder = new JPanel();
 
@@ -91,11 +98,13 @@ public class GroupView extends JPanel
 		renderCode();
 		body.add(codeHolder);
 
-		if (earlierDrops > 0)
-		{
-			body.add(Cards.gap(8));
-			body.add(shareEarlier(earlierDrops, onShareEarlier));
-		}
+		this.onShareEarlier = onShareEarlier;
+
+		earlierHolder.setLayout(new BoxLayout(earlierHolder, BoxLayout.Y_AXIS));
+		earlierHolder.setBackground(Theme.BACKGROUND);
+		earlierHolder.setAlignmentX(Component.LEFT_ALIGNMENT);
+		body.add(earlierHolder);
+		setEarlierDrops(earlierDrops);
 
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
@@ -135,6 +144,27 @@ public class GroupView extends JPanel
 		row.add(refresh);
 
 		return row;
+	}
+
+	/**
+	 * Changes how many earlier drops are on offer, without redrawing the screen.
+	 * <p>
+	 * Called the moment sharing is agreed to rather than after the send comes back, so the card goes
+	 * at once. Waiting for the round trip would leave it sitting there for a few seconds still
+	 * offering what has just been given away.
+	 */
+	public void setEarlierDrops(int count)
+	{
+		earlierHolder.removeAll();
+
+		if (count > 0)
+		{
+			earlierHolder.add(Cards.gap(8));
+			earlierHolder.add(shareEarlier(count, onShareEarlier));
+		}
+
+		earlierHolder.revalidate();
+		earlierHolder.repaint();
 	}
 
 	/**

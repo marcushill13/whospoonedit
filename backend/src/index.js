@@ -10,6 +10,8 @@
  * kill count it never reached — but it keeps an honest client's numbers right and stops the obvious.
  */
 
+import { parseDinkMessages } from './dink.js';
+
 /** Codes people read aloud, so no O/0 or I/1. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 6;
@@ -80,6 +82,12 @@ async function route(request, env)
 	if (item && request.method === 'GET')
 	{
 		return withCors(await whoSpoonedIt(item[1].toUpperCase(), decodeURIComponent(item[2]), env));
+	}
+
+	const importPath = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/import$/);
+	if (importPath && request.method === 'POST')
+	{
+		return withCors(await importFromDiscord(importPath[1].toUpperCase(), request, env));
 	}
 
 	const search = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/search$/);
@@ -407,6 +415,124 @@ async function searchItems(code, query, env)
 		.all();
 
 	return json({ items: rows.results ?? [] });
+}
+
+/**
+ * Brings in a group's history from its Discord channel.
+ *
+ * Only whoever made the group may do this, because one person's import becomes everyone's history.
+ *
+ * Names that are not in the group are ignored rather than added. A clan channel carries Dink messages
+ * from people who are not in this particular group, and quietly enrolling them would be a surprise.
+ * They are reported back so the plugin can say who was left out, since the commonest reason for a
+ * name not matching is that somebody has changed theirs.
+ */
+async function importFromDiscord(code, request, env)
+{
+	const group = await loadGroup(code, env);
+	if (!group)
+	{
+		return json({ error: 'No group with that code' }, 404);
+	}
+
+	if (request.headers.get('X-Creator-Token') !== group.creator_token)
+	{
+		return json({ error: 'Only whoever made this group can import its history' }, 403);
+	}
+
+	const body = await readJson(request);
+	const { drops, skipped, names } = parseDinkMessages(body?.messages);
+
+	const rows = await env.DB.prepare('SELECT rsn FROM members WHERE group_code = ?')
+		.bind(code)
+		.all();
+
+	// Matched without regard to case, because a name typed into a plugin and a name written by Dink
+	// are the same name however it was capitalised.
+	const members = new Map();
+	for (const row of rows.results ?? [])
+	{
+		members.set(row.rsn.toLowerCase(), row.rsn);
+	}
+
+	const matched = [];
+	const unmatched = {};
+	let withoutKillCount = 0;
+
+	for (const drop of drops)
+	{
+		const member = members.get(drop.rsn.toLowerCase());
+		if (!member)
+		{
+			unmatched[drop.rsn] = (unmatched[drop.rsn] ?? 0) + 1;
+			continue;
+		}
+
+		if (!drop.killCount)
+		{
+			withoutKillCount++;
+		}
+
+		matched.push({ ...drop, rsn: member });
+	}
+
+	const summary = {
+		found: drops.length,
+		skipped,
+		matched: matched.length,
+		withoutKillCount,
+		names,
+		unmatched
+	};
+
+	// Asked what would happen, rather than told to do it. The plugin shows this first, because an
+	// import that silently drops a third of a channel is one nobody would trust afterwards.
+	if (body?.dryRun)
+	{
+		return json({ ...summary, imported: 0, dryRun: true });
+	}
+
+	const now = Date.now();
+	const touched = new Set();
+
+	for (let from = 0; from < matched.length; from += 100)
+	{
+		const batch = matched.slice(from, from + 100);
+
+		await env.DB.batch(batch.map(drop =>
+		{
+			touched.add(drop.rsn);
+
+			return env.DB.prepare(
+				'INSERT OR IGNORE INTO drops' +
+				' (id, group_code, rsn, item_name, item_id, source, kill_count, denominator, share,' +
+				'  obtained_at, recorded_at, claimed)' +
+				' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)')
+				.bind(
+					drop.id,
+					code,
+					drop.rsn,
+					String(drop.itemName).slice(0, 120),
+					-1,
+					drop.source ? String(drop.source).slice(0, 80) : null,
+					drop.killCount ?? null,
+					drop.denominator === null ? null : Math.round(drop.denominator * RATE_SCALE),
+					shareOf(drop.denominator, drop.killCount),
+					drop.obtainedAt,
+					now);
+		}));
+	}
+
+	for (const rsn of touched)
+	{
+		await refreshTotals(code, rsn, env);
+	}
+
+	return json({
+		...summary,
+		imported: matched.length,
+		leaderboard: await leaderboardFor(code, env)
+	});
 }
 
 async function memberFor(code, request, env)
