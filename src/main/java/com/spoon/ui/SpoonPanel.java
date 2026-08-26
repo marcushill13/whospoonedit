@@ -93,29 +93,53 @@ public class SpoonPanel extends PluginPanel
 		this.onOpenGroup = onOpenGroup;
 	}
 
+	/** Replaces what is on screen. One holder, so only one screen can ever be up. */
+	public void show(JPanel screen)
+	{
+		content.removeAll();
+		content.add(screen, BorderLayout.NORTH);
+		content.revalidate();
+		content.repaint();
+	}
+
+	/** Whether the front screen is the one showing, so a refresh knows not to trample a form. */
+	public boolean isShowingList()
+	{
+		return content.getComponentCount() > 0 && content.getComponent(0) instanceof ListView;
+	}
+
 	/** Called whenever a drop lands, so the panel keeps up without anyone pressing anything. */
 	public void refresh()
+	{
+		SwingUtilities.invokeLater(() ->
+		{
+			// Only when the front screen is up. Rebuilding a half-filled form under someone's hands
+			// would throw away what they had typed.
+			if (isShowingList())
+			{
+				rebuild();
+			}
+		});
+	}
+
+	/** Back to the front screen, whatever was showing. */
+	public void showList()
 	{
 		SwingUtilities.invokeLater(this::rebuild);
 	}
 
+	/** Marker so a refresh can tell which screen is up without tracking state separately. */
+	private static class ListView extends JPanel
+	{
+	}
+
 	private void rebuild()
 	{
-		JPanel body = new JPanel();
+		ListView body = new ListView();
 		body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 		body.setBackground(Theme.BACKGROUND);
 
-		JLabel heading = new JLabel("WHO SPOONED IT?");
-		heading.setFont(Theme.title());
-		heading.setForeground(Theme.GOLD);
-		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
-		body.add(heading);
-
-		JLabel strapline = new JLabel("Your collection log, and how lucky you got");
-		strapline.setFont(Theme.body());
-		strapline.setForeground(Theme.TEXT_MUTED);
-		strapline.setAlignmentX(Component.LEFT_ALIGNMENT);
-		body.add(strapline);
+		body.add(Header.build("Your collection log, and how lucky you got"));
 
 		body.add(Cards.gap(12));
 
@@ -157,10 +181,7 @@ public class SpoonPanel extends PluginPanel
 			}
 		}
 
-		content.removeAll();
-		content.add(body, BorderLayout.NORTH);
-		content.revalidate();
-		content.repaint();
+		show(body);
 	}
 
 	/** Create and Join, side by side, because neither is the lesser of the two. */
