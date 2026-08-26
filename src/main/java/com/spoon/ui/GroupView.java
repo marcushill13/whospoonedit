@@ -445,7 +445,8 @@ public class GroupView extends JPanel
 	 * Fills in the results of a search: everyone who has that item, luckiest first.
 	 */
 	public void showHolders(
-		String itemName, List<Holder> holders, java.util.function.IntFunction<JLabel> medal)
+		String itemName, List<Holder> holders, java.util.function.IntFunction<JLabel> medal,
+		ItemIcons icons)
 	{
 		searchResults.removeAll();
 
@@ -457,12 +458,18 @@ public class GroupView extends JPanel
 			return;
 		}
 
-		searchResults.add(Cards.sectionLabel(itemName));
+		JPanel heading = new JPanel(new BorderLayout(6, 0));
+		heading.setBackground(Theme.BACKGROUND);
+		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+		heading.add(icons.label(holders.get(0).getItemId(), itemName), BorderLayout.WEST);
+		heading.add(Cards.sectionLabel(itemName), BorderLayout.CENTER);
+		heading.setMaximumSize(new Dimension(Integer.MAX_VALUE, heading.getPreferredSize().height));
+		searchResults.add(heading);
 		searchResults.add(Cards.gap(4));
 
 		for (Holder holder : holders)
 		{
-			searchResults.add(holderRow(holder, medal));
+			searchResults.add(holderRow(holder, medal, icons));
 			searchResults.add(Cards.gap(3));
 		}
 
@@ -478,7 +485,8 @@ public class GroupView extends JPanel
 		searchResults.repaint();
 	}
 
-	private JPanel holderRow(Holder holder, java.util.function.IntFunction<JLabel> medal)
+	private JPanel holderRow(
+		Holder holder, java.util.function.IntFunction<JLabel> medal, ItemIcons icons)
 	{
 		JPanel row = new JPanel(new BorderLayout(6, 0));
 		row.setBackground(Theme.CARD);

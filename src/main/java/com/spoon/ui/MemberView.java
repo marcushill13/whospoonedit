@@ -15,7 +15,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.FontManager;
 
 /**
@@ -30,7 +29,7 @@ public class MemberView extends JPanel
 	private static final SimpleDateFormat WHEN = new SimpleDateFormat("d MMM yyyy");
 
 	private final JPanel list = new JPanel();
-	private final ItemManager itemManager;
+	private final ItemIcons icons;
 
 	private final String rsn;
 	private final Consumer<String> onSort;
@@ -43,13 +42,13 @@ public class MemberView extends JPanel
 		int scored,
 		double avgShare,
 		String sort,
-		ItemManager itemManager,
+		ItemIcons icons,
 		Consumer<String> onSort,
 		Runnable onBack)
 	{
 		this.rsn = rsn;
 		this.sort = sort;
-		this.itemManager = itemManager;
+		this.icons = icons;
 		this.onSort = onSort;
 
 		setLayout(new BorderLayout());
@@ -166,12 +165,9 @@ public class MemberView extends JPanel
 		row.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		if (drop.getItemId() > 0)
-		{
-			JLabel icon = new JLabel();
-			itemManager.getImage(drop.getItemId()).addTo(icon);
-			row.add(icon, BorderLayout.WEST);
-		}
+		// By id when there is one, by name when there is not: an imported drop carries only a name,
+		// because that is all Dink writes.
+		row.add(icons.label(drop.getItemId(), drop.getItemName()), BorderLayout.WEST);
 
 		JPanel text = new JPanel();
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));

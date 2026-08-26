@@ -169,6 +169,12 @@ public class DropRates
 		return null;
 	}
 
+	/** Every monster the data knows, so the whole set of dropped items can be walked once. */
+	public java.util.Set<String> sources()
+	{
+		return bySource.keySet();
+	}
+
 	public boolean isEmpty()
 	{
 		return bySource.isEmpty();

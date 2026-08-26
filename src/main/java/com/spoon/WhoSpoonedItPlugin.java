@@ -12,6 +12,7 @@ import com.spoon.ui.CreateGroupPanel;
 import com.spoon.ui.ClaimPanel;
 import com.spoon.ui.ClaimsPanel;
 import com.spoon.ui.GroupView;
+import com.spoon.ui.ItemIcons;
 import com.spoon.ui.MemberView;
 import com.spoon.ui.JoinGroupPanel;
 import com.spoon.ui.Medals;
@@ -71,6 +72,9 @@ public class WhoSpoonedItPlugin extends Plugin
 
 	@Inject
 	private net.runelite.client.game.ItemManager itemManager;
+
+	@Inject
+	private ItemIcons icons;
 
 	@Inject
 	private SpoonApi api;
@@ -371,7 +375,7 @@ public class WhoSpoonedItPlugin extends Plugin
 					return;
 				}
 
-				asked.showHolders(query.trim(), result.getValue(), medals::label);
+				asked.showHolders(query.trim(), result.getValue(), medals::label, icons);
 			});
 		});
 	}
@@ -464,7 +468,7 @@ public class WhoSpoonedItPlugin extends Plugin
 					drops.getScored(),
 					drops.getAvgShare(),
 					drops.getSort(),
-					itemManager,
+					icons,
 					chosen -> openMember(code, rsn, chosen),
 					() -> openGroup(code));
 

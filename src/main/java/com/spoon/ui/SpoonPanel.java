@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 
@@ -37,7 +36,7 @@ public class SpoonPanel extends PluginPanel
 
 	private final SpoonStore spoons;
 	private final GroupStore groupStore;
-	private final ItemManager itemManager;
+	private final ItemIcons icons;
 
 	/** Set by the plugin, so this class need not know how a group is made or opened. */
 	private Runnable onCreate = () ->
@@ -55,13 +54,13 @@ public class SpoonPanel extends PluginPanel
 	private final JPanel content = new JPanel();
 
 	@Inject
-	private SpoonPanel(SpoonStore spoons, GroupStore groupStore, ItemManager itemManager)
+	private SpoonPanel(SpoonStore spoons, GroupStore groupStore, ItemIcons icons)
 	{
 		super(false);
 
 		this.spoons = spoons;
 		this.groupStore = groupStore;
-		this.itemManager = itemManager;
+		this.icons = icons;
 
 		setLayout(new BorderLayout());
 		setBackground(Theme.BACKGROUND);
@@ -258,12 +257,7 @@ public class SpoonPanel extends PluginPanel
 		row.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-		if (spoon.getItemId() > 0)
-		{
-			JLabel icon = new JLabel();
-			itemManager.getImage(spoon.getItemId()).addTo(icon);
-			row.add(icon, BorderLayout.WEST);
-		}
+		row.add(icons.label(spoon.getItemId(), spoon.getItemName()), BorderLayout.WEST);
 
 		JPanel text = new JPanel();
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
