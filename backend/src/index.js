@@ -1,13 +1,13 @@
 /**
- * Who Spooned It — the small service groups share.
+ * Who Spooned It, the small service groups share.
  *
  * A RuneLite plugin only ever sees its own client, so comparing collection logs across a group needs
  * somewhere for everyone's drops to meet.
  *
  * One decision worth stating: how lucky a drop was is worked out here, from the kill count and the
  * rarity the plugin reports. The plugin says what dropped and on which kill; it does not get to say
- * how impressive that was. That does not make it cheat-proof — a modified client can still claim a
- * kill count it never reached — but it keeps an honest client's numbers right and stops the obvious.
+ * how impressive that was. That does not make it cheat-proof, a modified client can still claim a
+ * kill count it never reached, but it keeps an honest client's numbers right and stops the obvious.
  */
 
 import { parseDinkMessages } from './dink.js';
@@ -181,7 +181,7 @@ async function createGroup(request, env)
 			.bind(code, name.slice(0, 60), creatorRsn.slice(0, 24), creatorToken, now),
 
 		// Whoever makes a group is in it. Unlike running a competition for other people, comparing
-		// collection logs is not something done on someone else's behalf — a group of one with its
+		// collection logs is not something done on someone else's behalf, a group of one with its
 		// maker outside it is nobody's idea of what Create means.
 		env.DB.prepare(
 			'INSERT INTO members (group_code, rsn, token, joined_at) VALUES (?, ?, ?, ?)')
@@ -392,7 +392,7 @@ async function refreshTotals(code, rsn, env)
 /**
  * The leaderboard: who has been spooned the most.
  *
- * Ranked on the count rather than the average, because that is the thing people argue about — being
+ * Ranked on the count rather than the average, because that is the thing people argue about, being
  * handed four pets early beats one absurd drop and an otherwise ordinary log. The average rides
  * alongside as "how spooned is this account", where lower is luckier.
  */
@@ -833,7 +833,7 @@ async function claimsFor(code, rsn, env)
  * How many yes votes carries a claim: more than half of everybody else.
  *
  * The claimant is left out of their own count, which is the whole point of putting it to the group.
- * A group of one has nobody to ask, so nothing can be carried until somebody joins — which is the
+ * A group of one has nobody to ask, so nothing can be carried until somebody joins, which is the
  * honest answer rather than waving it through.
  */
 async function votesNeeded(code, env)

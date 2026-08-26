@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
  * What kill count you were on when something dropped.
  * <p>
  * Deliberately reads counts that other plugins already keep rather than counting kills itself. That is
- * partly because they are better at it — the Chat Commands plugin stores the number the server told
- * you, which cannot drift — and partly to avoid a whole class of bug: a plugin that increments a
+ * partly because they are better at it, the Chat Commands plugin stores the number the server told
+ * you, which cannot drift, and partly to avoid a whole class of bug: a plugin that increments a
  * counter on a loot event double counts the moment two loot events fire for one kill, and RuneLite has
  * more than one way of announcing a kill. Reading a stored number cannot double anything.
  * <p>
@@ -97,7 +97,7 @@ public class KillCounts
 	 * <p>
 	 * The game keeps this, and it is the kill count of a clue: how many goes it took. Which key the
 	 * Chat Commands plugin files it under has changed with the wording of the message it reads, so
-	 * every plausible spelling is tried rather than one being assumed — a wrong guess here does not
+	 * every plausible spelling is tried rather than one being assumed, a wrong guess here does not
 	 * fail loudly, it just quietly leaves every clue reward unscored.
 	 *
 	 * @param tier "hard", "master" and so on

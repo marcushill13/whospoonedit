@@ -17,11 +17,11 @@ import net.runelite.client.util.AsyncBufferedImage;
  * Gold, silver and bronze spoons for the top three.
  * <p>
  * The game's own wooden spoon, recoloured. Using the real item rather than something drawn is the
- * whole joke — it is a spoon that exists in Old School, and everyone knows what it means.
+ * whole joke, it is a spoon that exists in Old School, and everyone knows what it means.
  * <p>
  * Filled in when the sprite arrives rather than asked for outright. {@link ItemManager#getImage}
  * hands back an image that is still empty and loads itself a moment later, so reading its pixels
- * straight away gives a blank — which is what an earlier version of this did, and then cached the
+ * straight away gives a blank, which is what an earlier version of this did, and then cached the
  * blank for good. Hence a label to fill rather than an icon to return.
  */
 @Slf4j

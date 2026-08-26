@@ -2,7 +2,7 @@
  * The Discord side: a bot that reads one channel's history, and only when asked to.
  *
  * The split matters. Discord supplies which channel; the plugin supplies who is allowed to import it.
- * A slash command cannot prove who typed it — Discord knows a Discord account, not a RuneScape one —
+ * A slash command cannot prove who typed it, Discord knows a Discord account, not a RuneScape one -
  * so linking a channel is all a command may do. The import itself is authorised from the plugin by
  * whoever holds the group's creator token, which is the only thing that proves anything.
  */
@@ -134,7 +134,7 @@ export async function fetchChannelHistory(channelId, botToken, notBefore = 0)
 /**
  * Handles a slash command.
  *
- * Only one exists: linking this channel to a group. It deliberately does not import anything — see
+ * Only one exists: linking this channel to a group. It deliberately does not import anything, see
  * the note at the top of this file.
  */
 export async function handleInteraction(interaction, env)

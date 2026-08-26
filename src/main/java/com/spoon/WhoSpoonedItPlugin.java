@@ -170,7 +170,7 @@ public class WhoSpoonedItPlugin extends Plugin
 		chatMessages.queue(QueuedMessage.builder()
 			.type(net.runelite.api.ChatMessageType.CONSOLE)
 			.runeLiteFormattedMessage(String.format(
-				"%s %s on kill %d — top %d%% of everyone who went for it.",
+				"%s %s on kill %d, top %d%% of everyone who went for it.",
 				verdict, spoon.getItemName(), spoon.getKillCount(), top))
 			.build());
 	}
@@ -290,7 +290,7 @@ public class WhoSpoonedItPlugin extends Plugin
 		String rsn = localPlayerName();
 		if (rsn == null)
 		{
-			warn("Log in first — a group is joined under your own name.");
+			warn("Log in first, a group is joined under your own name.");
 			return;
 		}
 
@@ -318,7 +318,7 @@ public class WhoSpoonedItPlugin extends Plugin
 		String rsn = localPlayerName();
 		if (rsn == null)
 		{
-			warn("Log in first — a group is joined under your own name.");
+			warn("Log in first, a group is joined under your own name.");
 			return;
 		}
 
@@ -506,7 +506,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	 * One member's drops, on their own.
 	 * <p>
 	 * The screen is drawn from the same answer that fills it, so the totals at the top and the list
-	 * below can never disagree — which they would if the panel were built from the leaderboard and then
+	 * below can never disagree, which they would if the panel were built from the leaderboard and then
 	 * filled from a second call.
 	 */
 	private void openMember(String code, String rsn, String sort)
@@ -709,7 +709,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	 * <p>
 	 * Asked about first, always. An import that silently discarded a third of a channel is one nobody
 	 * would trust afterwards, so what was found is put in front of the creator before anything is
-	 * kept — including whose names were not recognised, since a name that has been changed is the
+	 * kept, including whose names were not recognised, since a name that has been changed is the
 	 * commonest reason for a drop to go missing.
 	 */
 	private void importFromDiscord(String code)
@@ -787,7 +787,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	/**
 	 * Offers to open Discord so the bot can be added, rather than telling someone to go and do it.
 	 * <p>
-	 * Through LinkBrowser, which is the sanctioned way for a plugin to open a web page — and the only
+	 * Through LinkBrowser, which is the sanctioned way for a plugin to open a web page, and the only
 	 * one. Opening a local path is restricted on the plugin hub; a link is not.
 	 */
 	private void offerInvite(SpoonApi.Import found)

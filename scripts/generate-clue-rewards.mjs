@@ -2,7 +2,7 @@
  * Builds the clue reward rates, from the wiki, once.
  *
  * Dink's drop data covers monsters and nothing else, so a clue reward arrives with a kill count the
- * game does keep — how many caskets of that tier have been opened — and no rate to judge it against.
+ * game does keep, how many caskets of that tier have been opened, and no rate to judge it against.
  * This supplies the missing half.
  *
  * Read from the rendered page rather than its source. The source writes a rarity as a MediaWiki sum,
@@ -24,7 +24,7 @@ const AGENT = 'whospoonedit-build/1.0 (github.com/marcushill13)';
 /**
  * Anything commoner than this is not carried.
  *
- * A casket's ordinary contents — runes, coins, a handful of seeds — are most of every table, and
+ * A casket's ordinary contents, runes, coins, a handful of seeds, are most of every table, and
  * nobody has ever been called a spoon for pulling seeds. What people talk about is all rarer than
  * this, and the file is a third of the size without the rest.
  */

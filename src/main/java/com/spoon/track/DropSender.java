@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * what has not been sent yet.
  *
  * <p>A collection log slot is filled a few times a week at best, so there is no batching problem to
- * solve — the timer exists to catch what a failed send left behind, and everything else goes within
+ * solve, the timer exists to catch what a failed send left behind, and everything else goes within
  * seconds of happening.
  */
 @Slf4j

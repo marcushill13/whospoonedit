@@ -23,7 +23,7 @@ import net.runelite.client.game.ItemManager;
  * first, the chat line follows, and the two are joined here.
  * <p>
  * Nothing is counted in this class. The kill count is read from what other plugins already store, so
- * the fact that RuneLite has two ways of announcing a kill — and may fire both — cannot corrupt
+ * the fact that RuneLite has two ways of announcing a kill, and may fire both, cannot corrupt
  * anything: setting the same name twice is setting it once.
  */
 @Slf4j
@@ -128,7 +128,7 @@ public class ClogWatcher
 		spoon.setSource(lastSource == null ? "" : lastSource);
 
 		// A clue is not a monster: no kill count in the ordinary sense, but the game does keep how many
-		// caskets of that tier have been opened, which is the same question — how many goes it took.
+		// caskets of that tier have been opened, which is the same question, how many goes it took.
 		String tier = ClueRewards.tierOf(lastSource);
 
 		int kc;

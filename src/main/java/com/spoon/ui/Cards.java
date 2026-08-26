@@ -77,8 +77,8 @@ final class Cards
 	 *
 	 * <pre>193 - 8 padding - 30 icon - 8 gaps - 46 for the luck figure = 101</pre>
 	 *
-	 * Set below that on purpose. The sum is right but the parts are estimates — a proportional font
-	 * makes "top 100%" wider than "top 19%" — and a row that only just fits is one long item name away
+	 * Set below that on purpose. The sum is right but the parts are estimates, a proportional font
+	 * makes "top 100%" wider than "top 19%", and a row that only just fits is one long item name away
 	 * from not fitting.
 	 */
 	static final int NAME_WRAP = 86;
@@ -88,7 +88,7 @@ final class Cards
 	}
 
 	/**
-	 * A padded block with a subtle darker background — the unit the panel is composed from.
+	 * A padded block with a subtle darker background, the unit the panel is composed from.
 	 */
 	static JPanel card()
 	{
@@ -113,7 +113,7 @@ final class Cards
 	}
 
 	/**
-	 * Section label — small, uppercase, muted. Used to break the panel into scannable groups.
+	 * Section label, small, uppercase, muted. Used to break the panel into scannable groups.
 	 */
 	static JLabel sectionLabel(String text)
 	{
@@ -138,7 +138,7 @@ final class Cards
 	}
 
 	/**
-	 * A setup or section title — larger than body text so a list of setups scans by name.
+	 * A setup or section title, larger than body text so a list of setups scans by name.
 	 */
 	static JLabel title(String text)
 	{
@@ -150,7 +150,7 @@ final class Cards
 	}
 
 	/**
-	 * A prominent warning block — a coloured strip and bold text, for things the player needs to act
+	 * A prominent warning block, a coloured strip and bold text, for things the player needs to act
 	 * on rather than merely notice.
 	 */
 	static JPanel warning(String text)
@@ -263,7 +263,7 @@ final class Cards
 	 * A vertical spacer that is left-aligned like everything else.
 	 * <p>
 	 * {@link Box#createVerticalStrut} defaults to centre alignment, and a Y_AXIS BoxLayout containing
-	 * a mix of alignments indents its children instead of filling the panel — which is what made the
+	 * a mix of alignments indents its children instead of filling the panel, which is what made the
 	 * whole sidebar look squashed toward one side.
 	 */
 	static Component gap(int height)
@@ -296,11 +296,11 @@ final class Cards
 	/**
 	 * A titled section that expands when clicked, like the panels in the wiki's DPS calculator.
 	 * <p>
-	 * Used instead of a dropdown where the options benefit from being seen at once — prayers as a grid
-	 * of icons, potions as a scrollable list — rather than hidden one-at-a-time behind a combo box.
+	 * Used instead of a dropdown where the options benefit from being seen at once, prayers as a grid
+	 * of icons, potions as a scrollable list, rather than hidden one-at-a-time behind a combo box.
 	 *
 	 * @param content shown when expanded; starts hidden
-	 * @param decorate given the header button, so callers can hang an icon on it — the sprite and item
+	 * @param decorate given the header button, so callers can hang an icon on it, the sprite and item
 	 *                 image loaders are asynchronous, so the icon cannot simply be passed in
 	 */
 	static JPanel expandable(String title, JComponent content, Consumer<JButton> decorate)
@@ -356,7 +356,7 @@ final class Cards
 	}
 
 	/**
-	 * Two or more mutually exclusive options as side-by-side buttons — clearer than a dropdown when
+	 * Two or more mutually exclusive options as side-by-side buttons, clearer than a dropdown when
 	 * there are only a couple of choices, and it shows the alternative without a click.
 	 */
 	static JPanel segmented(String[] labels, int selectedIndex, IntConsumer onSelect)

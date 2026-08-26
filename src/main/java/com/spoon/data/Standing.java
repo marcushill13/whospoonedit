@@ -24,7 +24,7 @@ public class Standing
 	 * Mean share across their scored drops: how spooned this account is. Low is lucky.
 	 * <p>
 	 * Averaged over what they have, not what they are still waiting on, so it flatters everybody a
-	 * little — going a thousand dry on a pet costs nothing here because there is no drop to score.
+	 * little, going a thousand dry on a pet costs nothing here because there is no drop to score.
 	 */
 	private double avgShare = 0.5;
 }

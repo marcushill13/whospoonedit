@@ -94,7 +94,7 @@ public class SpoonStore
 	 * Records a drop, unless this item is already here.
 	 * <p>
 	 * The collection log announces a slot the first time it is filled, so a repeat means something has
-	 * gone wrong rather than that the player got it twice — a replayed chat line, or a re-import. The
+	 * gone wrong rather than that the player got it twice, a replayed chat line, or a re-import. The
 	 * first record is the one that matters, because it is the one with the kill count that earns the
 	 * spoon.
 	 *
@@ -154,7 +154,7 @@ public class SpoonStore
 		return spoons.size();
 	}
 
-	/** How many came in ahead of the drop rate — the ones worth arguing about. */
+	/** How many came in ahead of the drop rate, the ones worth arguing about. */
 	public int spoonCount()
 	{
 		int spooned = 0;

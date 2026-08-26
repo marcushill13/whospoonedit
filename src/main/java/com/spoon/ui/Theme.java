@@ -14,7 +14,7 @@ import net.runelite.client.ui.FontManager;
  * <p>
  * RuneLite's own palette is flat grey on flat grey, which is right for a tool you glance at and wrong
  * for something people open to see whether they are winning. This is a darker, slightly blue base with
- * gold on top of it — gold because that is what a scoreboard is, and because it reads as a prize
+ * gold on top of it, gold because that is what a scoreboard is, and because it reads as a prize
  * rather than as an interface.
  * <p>
  * Kept in one place so a colour can be changed once rather than in nine panels.
@@ -67,7 +67,7 @@ public final class Theme
 	}
 
 	/**
-	 * A number worth looking at — a score, a countdown, a challenge code.
+	 * A number worth looking at, a score, a countdown, a challenge code.
 	 */
 	public static Font figure(float size)
 	{

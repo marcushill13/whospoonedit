@@ -7,7 +7,7 @@ sitting in its Dink channel.
 
 Discord supplies **which channel**. The plugin supplies **who may read it**.
 
-A slash command cannot prove who typed it — Discord knows a Discord account, not a RuneScape one — so
+A slash command cannot prove who typed it, Discord knows a Discord account, not a RuneScape one, so
 `/spoons link` does nothing but record the channel. The import itself is authorised from the plugin
 by whoever holds the group's creator token, which is the only thing that proves anything.
 

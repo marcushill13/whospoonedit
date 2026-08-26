@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>
  * Bundled rather than fetched, so the plugin never calls out to the wiki while someone is playing and
  * a drop can always be scored the instant it lands. The file is Dink's, used under its BSD licence and
- * credited in NOTICE.md — see there for why sharing its data matters rather than rebuilding it.
+ * credited in NOTICE.md, see there for why sharing its data matters rather than rebuilding it.
  */
 @Slf4j
 @Singleton
@@ -62,7 +62,7 @@ public class DropRates
 		}
 		catch (Exception e)
 		{
-			// Never fatal. Without rates, drops are still recorded — they simply cannot be scored, which
+			// Never fatal. Without rates, drops are still recorded, they simply cannot be scored, which
 			// is a worse plugin rather than a broken one.
 			log.warn("Could not read the drop rate data", e);
 			return Collections.emptyMap();
@@ -87,7 +87,7 @@ public class DropRates
 	 * <p>
 	 * Exposed so a drop can be identified by name against this list rather than by asking RuneLite to
 	 * look the name up. {@code ItemManager.search} answers from the price API, which only knows
-	 * tradeable items — so it finds nothing for pets, and pets are the entire point of a plugin about
+	 * tradeable items, so it finds nothing for pets, and pets are the entire point of a plugin about
 	 * being spooned. Matching against a monster's own drop list has no such gap, and it is a few dozen
 	 * items rather than the whole game.
 	 */

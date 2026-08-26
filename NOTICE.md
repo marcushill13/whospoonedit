@@ -8,7 +8,7 @@ Licence. It maps each NPC to the items it drops and how rare they are.
 
 Used rather than rebuilt for two reasons. It is a large, carefully maintained dataset that would
 take a long time to reproduce and longer to keep correct. And most groups arriving here have been
-reading Dink's luck figures in Discord for months — sharing its source data means this plugin's
+reading Dink's luck figures in Discord for months, sharing its source data means this plugin's
 numbers agree with the ones they already trust, rather than being subtly different for no reason
 anyone could explain.
 

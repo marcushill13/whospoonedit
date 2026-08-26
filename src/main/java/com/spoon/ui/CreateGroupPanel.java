@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
  * Making a group: a name, and that is all.
  * <p>
  * Nothing else is asked for because nothing else is needed. A group has no rules to agree and no
- * settings to get wrong — it is a set of people and their collection logs, and everything worth
+ * settings to get wrong, it is a set of people and their collection logs, and everything worth
  * arguing about comes out of the drops themselves.
  */
 public class CreateGroupPanel extends JPanel

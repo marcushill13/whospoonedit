@@ -46,7 +46,7 @@ public class GroupView extends JPanel
 	/**
 	 * Shut to begin with, every time.
 	 * <p>
-	 * The code, the member count and a delete button are wanted about once — when the group is made
+	 * The code, the member count and a delete button are wanted about once, when the group is made
 	 * and the code goes into Discord. After that they are a large noisy block sitting above the thing
 	 * everyone actually opened this for.
 	 */
@@ -272,7 +272,7 @@ public class GroupView extends JPanel
 		{
 			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
 			// release land on the same component with the mouse not having moved between them, so a
-			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
+			// pixel of drift silently does nothing, which reads as the plugin ignoring you.
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent event)
 			{
@@ -285,7 +285,7 @@ public class GroupView extends JPanel
 		return row;
 	}
 
-	/** The code, shown large — it is what gets pasted into Discord and read back by hand. */
+	/** The code, shown large, it is what gets pasted into Discord and read back by hand. */
 	private JPanel codeCard()
 	{
 		JPanel card = Cards.card();
@@ -402,7 +402,7 @@ public class GroupView extends JPanel
 		{
 			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
 			// release land on the same component with the mouse not having moved between them, so a
-			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
+			// pixel of drift silently does nothing, which reads as the plugin ignoring you.
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent event)
 			{
@@ -500,7 +500,7 @@ public class GroupView extends JPanel
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		// Only the scored get medals here. Somebody who has the item but never had a kill count
-		// recorded is not first, and is not last either — they are simply not in the running.
+		// recorded is not first, and is not last either, they are simply not in the running.
 		if (holder.getShare() != null && holder.getPlace() <= 3)
 		{
 			row.add(medal.apply(holder.getPlace()), BorderLayout.WEST);
@@ -535,7 +535,7 @@ public class GroupView extends JPanel
 		text.add(Cards.mutedInRow(detail));
 		row.add(text, BorderLayout.CENTER);
 
-		JLabel luck = new JLabel(holder.getShare() == null ? "—" : percent(holder.getShare()));
+		JLabel luck = new JLabel(holder.getShare() == null ? "-" : percent(holder.getShare()));
 		luck.setFont(FontManager.getRunescapeBoldFont());
 		luck.setForeground(holder.getShare() == null ? Theme.TEXT_MUTED : luckColour(holder.getShare()));
 		row.add(luck, BorderLayout.EAST);

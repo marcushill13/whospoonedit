@@ -208,7 +208,7 @@ public class MemberView extends JPanel
 
 		row.add(text, BorderLayout.CENTER);
 
-		JLabel luck = new JLabel(drop.getShare() == null ? "—" : GroupView.percent(drop.getShare()));
+		JLabel luck = new JLabel(drop.getShare() == null ? "-" : GroupView.percent(drop.getShare()));
 		luck.setFont(FontManager.getRunescapeBoldFont());
 		luck.setForeground(drop.getShare() == null ? Theme.TEXT_MUTED : colourFor(drop.getShare()));
 		row.add(luck, BorderLayout.EAST);

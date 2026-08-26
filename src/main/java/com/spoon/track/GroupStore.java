@@ -133,7 +133,7 @@ public class GroupStore
 
 	/**
 	 * Adds a group, or updates one already known. Tokens already held are kept when the incoming copy
-	 * has none — a refresh carries the group but not the secrets.
+	 * has none, a refresh carries the group but not the secrets.
 	 */
 	public void put(Group group, @Nullable String creatorToken, @Nullable String memberToken)
 	{

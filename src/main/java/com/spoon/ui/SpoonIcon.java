@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
  * <p>
  * Drawn rather than taken from the game because this is a logo rather than an item: it has to stay
  * crisp at whatever size a heading needs, and be the colour of the heading beside it. The real
- * article — the wooden spoon — is used where an item is actually meant, on the leaderboard.
+ * article, the wooden spoon, is used where an item is actually meant, on the leaderboard.
  */
 public final class SpoonIcon
 {

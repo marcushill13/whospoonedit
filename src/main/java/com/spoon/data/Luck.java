@@ -3,7 +3,7 @@ package com.spoon.data;
 /**
  * How lucky a drop was, on a scale everyone can be compared on.
  * <p>
- * A raw kill count says nothing on its own — ten kills for a 1/128 is unremarkable, ten kills for a
+ * A raw kill count says nothing on its own, ten kills for a 1/128 is unremarkable, ten kills for a
  * 1/5000 is a story. What matters is how you did against the people who went for the same thing.
  * <p>
  * So a drop is scored by the share of players who would already have had it by the kill count you got
@@ -33,16 +33,16 @@ public final class Luck
 	{
 		if (denominator <= 0 || killCount <= 0)
 		{
-			// No rate for this item, or no kill count recorded against it. Both happen — a clue scroll
-			// item has no source to count kills of — and neither can be scored.
+			// No rate for this item, or no kill count recorded against it. Both happen, a clue scroll
+			// item has no source to count kills of, and neither can be scored.
 			return -1;
 		}
 
 		double perKill = 1.0 / denominator;
 
 		// 1 - (1-p)^n, the chance of at least one success in n attempts. Worked out through logs rather
-		// than Math.pow so that the very long odds people actually care about — a 1 in 5000 pet over
-		// thousands of kills — do not lose their precision.
+		// than Math.pow so that the very long odds people actually care about, a 1 in 5000 pet over
+		// thousands of kills, do not lose their precision.
 		return -Math.expm1(killCount * Math.log1p(-perKill));
 	}
 

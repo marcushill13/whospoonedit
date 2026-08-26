@@ -1,4 +1,4 @@
--- Who Spooned It — the small service groups share.
+-- Who Spooned It, the small service groups share.
 --
 -- A RuneLite plugin only ever sees its own client, so comparing collection logs across a group needs
 -- somewhere for everyone's drops to meet. That is all this is.

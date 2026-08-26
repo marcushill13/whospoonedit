@@ -2,8 +2,8 @@
  * Reading Dink's collection log messages back out of Discord.
  *
  * A group that has been posting Dink notifications to a channel has, without meaning to, kept a
- * complete record of who got what and on which kill. Dink itself cannot look backwards — it works out
- * the kill count at the moment of the drop and posts it — so that channel is the only place the
+ * complete record of who got what and on which kill. Dink itself cannot look backwards, it works out
+ * the kill count at the moment of the drop and posts it, so that channel is the only place the
  * history exists.
  *
  * The same shape arrives from two places: Discord's own API, and a JSON export made with a tool. Both

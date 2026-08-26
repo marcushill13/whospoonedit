@@ -133,7 +133,7 @@ public class ClaimsPanel extends JPanel
 		if (claim.isYours())
 		{
 			// Nobody carries their own claim, which is the point of putting it to the group.
-			JLabel yours = new JLabel("Yours — waiting on the others");
+			JLabel yours = new JLabel("Yours, waiting on the others");
 			yours.setFont(Theme.body());
 			yours.setForeground(Theme.TEXT_MUTED);
 			row.add(yours, BorderLayout.CENTER);

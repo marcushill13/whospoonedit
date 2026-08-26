@@ -18,8 +18,8 @@ import net.runelite.client.game.ItemManager;
 /**
  * The picture of an item, found from its name.
  * <p>
- * Needed because a drop brought in from Discord has only a name — Dink writes what dropped, not which
- * item id it was — so without this every imported drop is a row with a blank space where everyone
+ * Needed because a drop brought in from Discord has only a name, Dink writes what dropped, not which
+ * item id it was, so without this every imported drop is a row with a blank space where everyone
  * else has a picture.
  * <p>
  * The obvious way round it, {@code ItemManager.search}, answers from the price API and so knows only
@@ -97,7 +97,7 @@ public class ItemIcons
 	 * composition.
 	 * <p>
 	 * Every id in the drop data, which is a few thousand once the duplicates across monsters are
-	 * dropped — not the thirty-odd thousand items in the game. Done in one pass because a pass costs
+	 * dropped, not the thirty-odd thousand items in the game. Done in one pass because a pass costs
 	 * about as much as deciding whether to do a pass.
 	 */
 	private synchronized void build(Runnable then)
@@ -137,8 +137,8 @@ public class ItemIcons
 						continue;
 					}
 
-					// The first id for a name wins. Several ids share one name — noted, charged,
-					// placeholder versions — and any of them draws the same picture.
+					// The first id for a name wins. Several ids share one name, noted, charged,
+					// placeholder versions, and any of them draws the same picture.
 					byName.putIfAbsent(composition.getName().toLowerCase(Locale.ROOT), id);
 				}
 

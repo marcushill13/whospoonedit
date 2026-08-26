@@ -170,7 +170,7 @@ public class SpoonPanel extends PluginPanel
 				body.add(Cards.gap(4));
 				body.add(Cards.muted(spoons.count() == 0
 					? "Nothing yet. Go and fill a log slot and it will appear here."
-					: "Nothing scored yet — the drops so far had no kill count to judge them on."));
+					: "Nothing scored yet, the drops so far had no kill count to judge them on."));
 			}
 
 			for (Spoon spoon : luckiest)
@@ -193,7 +193,7 @@ public class SpoonPanel extends PluginPanel
 
 		// Called through rather than handed over. This panel is built by injection before the plugin
 		// has said what the buttons do, so passing onCreate directly would hand each tile the empty
-		// default and keep it for good — which is exactly what happened: two buttons that did nothing.
+		// default and keep it for good, which is exactly what happened: two buttons that did nothing.
 		row.add(new ActionTile("Create", () -> onCreate.run()));
 		row.add(new ActionTile("Join", () -> onJoin.run()));
 
@@ -201,7 +201,7 @@ public class SpoonPanel extends PluginPanel
 	}
 
 	/**
-	 * The groups this account is in. More than one is normal — a clan and a group of mates are
+	 * The groups this account is in. More than one is normal, a clan and a group of mates are
 	 * different competitions over the same collection log.
 	 */
 	private JPanel groups()
@@ -260,7 +260,7 @@ public class SpoonPanel extends PluginPanel
 		{
 			// mousePressed rather than mouseClicked. Swing only fires a click when the press and the
 			// release land on the same component with the mouse not having moved between them, so a
-			// pixel of drift silently does nothing — which reads as the plugin ignoring you.
+			// pixel of drift silently does nothing, which reads as the plugin ignoring you.
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent event)
 			{
