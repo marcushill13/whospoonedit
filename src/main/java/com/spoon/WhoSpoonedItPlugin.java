@@ -389,6 +389,12 @@ public class WhoSpoonedItPlugin extends Plugin
 				panel.show(view);
 				this.openView = view;
 				this.openCode = code;
+
+				// Opening a group is the moment to reconcile: anything it knows about this account that
+				// this client never saw belongs on the front screen too. Cheap, because a drop already
+				// taken is skipped by name, and it is the only place somebody would notice the two
+				// disagreeing.
+				catchUpFromGroup(code);
 			});
 		});
 	}

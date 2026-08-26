@@ -76,8 +76,12 @@ final class Cards
 	 * What is left for a name once a row has paid for everything else.
 	 *
 	 * <pre>193 - 8 padding - 30 icon - 8 gaps - 46 for the luck figure = 101</pre>
+	 *
+	 * Set below that on purpose. The sum is right but the parts are estimates — a proportional font
+	 * makes "top 100%" wider than "top 19%" — and a row that only just fits is one long item name away
+	 * from not fitting.
 	 */
-	static final int NAME_WRAP = 96;
+	static final int NAME_WRAP = 86;
 
 	private Cards()
 	{
