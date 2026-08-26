@@ -176,6 +176,17 @@ final class Cards
 	 * other. The full-width version forces the row wider than the panel, which pushes the value off the
 	 * edge entirely.
 	 */
+	/**
+	 * Text that wraps instead of demanding a line to itself.
+	 * <p>
+	 * A JLabel asks for however much room its text needs on one line, and in a sidebar of fixed width
+	 * that is how one long item name widens the whole plugin.
+	 */
+	static String wrap(String text, int width)
+	{
+		return "<html><body style='width:" + width + "px'>" + escape(text) + "</body></html>";
+	}
+
 	static JLabel mutedInRow(String text)
 	{
 		JLabel label = new JLabel("<html><body style='width:100px'>" + escape(text) + "</body></html>");

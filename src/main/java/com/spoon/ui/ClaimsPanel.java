@@ -66,13 +66,13 @@ public class ClaimsPanel extends JPanel
 	{
 		JPanel card = Cards.card();
 
-		JLabel who = new JLabel(claim.getRsn() + " says they got");
+		JLabel who = new JLabel(Cards.wrap(claim.getRsn() + " says they got", 150));
 		who.setFont(Theme.body());
 		who.setForeground(Theme.TEXT_MUTED);
 		who.setAlignmentX(Component.LEFT_ALIGNMENT);
 		card.add(who);
 
-		JLabel item = new JLabel(claim.getItemName());
+		JLabel item = new JLabel(Cards.wrap(claim.getItemName(), 150));
 		item.setFont(FontManager.getRunescapeBoldFont());
 		item.setForeground(Theme.GOLD);
 		item.setAlignmentX(Component.LEFT_ALIGNMENT);

@@ -27,7 +27,17 @@ public final class Header
 	 * icons off the screen. That is exactly what happened: the group screen fitted because its
 	 * strapline was one short word, and the front screen did not because its was a sentence.
 	 */
-	private static final int WORDS_WIDTH = net.runelite.client.ui.PluginPanel.PANEL_WIDTH - LOGO - 30;
+	/**
+	 * What is actually available: the sidebar's width less the padding this sits inside.
+	 *
+	 * The panel pads by ten each side and the screens leave room for a scrollbar, so asking for the
+	 * full 225 asks for more than there is and widens everything by the difference. That is the second
+	 * time this has pushed RuneLite's icons off the edge, so the sum is written down rather than
+	 * guessed at.
+	 */
+	private static final int AVAILABLE = net.runelite.client.ui.PluginPanel.PANEL_WIDTH - 32;
+
+	private static final int WORDS_WIDTH = AVAILABLE - LOGO - 8;
 
 	private Header()
 	{
@@ -67,7 +77,7 @@ public final class Header
 		row.add(logo, BorderLayout.EAST);
 
 		int height = row.getPreferredSize().height;
-		row.setPreferredSize(new Dimension(net.runelite.client.ui.PluginPanel.PANEL_WIDTH, height));
+		row.setPreferredSize(new Dimension(AVAILABLE, height));
 		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
 		return row;
 	}

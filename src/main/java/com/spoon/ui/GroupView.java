@@ -377,7 +377,7 @@ public class GroupView extends JPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(standing.getRsn());
+		JLabel name = new JLabel(Cards.wrap(standing.getRsn(), 110));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(you ? Theme.GOLD : Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -504,7 +504,7 @@ public class GroupView extends JPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(holder.getRsn());
+		JLabel name = new JLabel(Cards.wrap(holder.getRsn(), 110));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);

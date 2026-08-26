@@ -263,7 +263,9 @@ public class SpoonPanel extends PluginPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(spoon.getItemName());
+		// Wrapped: item names run to "Ancient ceremonial mask" and a plain label asks for the lot on
+		// one line, which is enough to widen the whole sidebar.
+		JLabel name = new JLabel(Cards.wrap(spoon.getItemName(), 110));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -278,7 +280,7 @@ public class SpoonPanel extends PluginPanel
 		row.add(text, BorderLayout.CENTER);
 
 		// The luck reads as "top N%", the same wording the group already sees from Dink in Discord.
-		JLabel luck = new JLabel("top " + Math.max(1, (int) Math.round(spoon.getShare() * 100)) + "%");
+		JLabel luck = new JLabel(GroupView.percent(spoon.getShare()));
 		luck.setFont(FontManager.getRunescapeBoldFont());
 		luck.setForeground(colourFor(spoon.getShare()));
 		row.add(luck, BorderLayout.EAST);

@@ -173,7 +173,9 @@ public class MemberView extends JPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(drop.getItemName());
+		// Wrapped: item names run to "Ancient ceremonial mask" and a plain label asks for the lot on
+		// one line, which is enough to widen the whole sidebar.
+		JLabel name = new JLabel(Cards.wrap(drop.getItemName(), 110));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);
