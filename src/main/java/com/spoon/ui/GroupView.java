@@ -353,9 +353,9 @@ public class GroupView extends JPanel
 	{
 		boolean you = standing.getRsn().equalsIgnoreCase(yourName == null ? "" : yourName);
 
-		JPanel row = new JPanel(new BorderLayout(6, 0));
+		JPanel row = new JPanel(new BorderLayout(Cards.ROW_GAP, 0));
 		row.setBackground(Theme.CARD);
-		row.setBorder(BorderFactory.createEmptyBorder(5, 6, 5, 6));
+		row.setBorder(BorderFactory.createEmptyBorder(5, Cards.ROW_PAD, 5, Cards.ROW_PAD));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		// The top three get a spoon; everyone else gets their number. Fourth place being plainly not a
@@ -377,7 +377,7 @@ public class GroupView extends JPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(Cards.wrap(standing.getRsn(), 110));
+		JLabel name = new JLabel(Cards.wrap(standing.getRsn(), Cards.NAME_WRAP));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(you ? Theme.GOLD : Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -458,7 +458,7 @@ public class GroupView extends JPanel
 			return;
 		}
 
-		JPanel heading = new JPanel(new BorderLayout(6, 0));
+		JPanel heading = new JPanel(new BorderLayout(Cards.ROW_GAP, 0));
 		heading.setBackground(Theme.BACKGROUND);
 		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
 		heading.add(icons.label(holders.get(0).getItemId(), itemName), BorderLayout.WEST);
@@ -488,9 +488,9 @@ public class GroupView extends JPanel
 	private JPanel holderRow(
 		Holder holder, java.util.function.IntFunction<JLabel> medal, ItemIcons icons)
 	{
-		JPanel row = new JPanel(new BorderLayout(6, 0));
+		JPanel row = new JPanel(new BorderLayout(Cards.ROW_GAP, 0));
 		row.setBackground(Theme.CARD);
-		row.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+		row.setBorder(BorderFactory.createEmptyBorder(Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		// Only the scored get medals here. Somebody who has the item but never had a kill count
@@ -504,7 +504,7 @@ public class GroupView extends JPanel
 		text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
 		text.setBackground(row.getBackground());
 
-		JLabel name = new JLabel(Cards.wrap(holder.getRsn(), 110));
+		JLabel name = new JLabel(Cards.wrap(holder.getRsn(), Cards.NAME_WRAP));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);

@@ -49,6 +49,36 @@ final class Cards
 	 */
 	static final int SCROLLBAR_ALLOWANCE = 12;
 
+	/**
+	 * How wide a row may actually be.
+	 *
+	 * 225 for the sidebar, less the panel's own padding of ten each side, less the room a screen
+	 * leaves for the scrollbar:
+	 *
+	 * <pre>225 - 20 - 12 = 193</pre>
+	 *
+	 * Written down because guessing at it has twice produced a plugin that shoves RuneLite's icons off
+	 * the screen and then clips its own text. Anything laid out across a row has to add up to less
+	 * than this, including its own borders and gaps.
+	 */
+	static final int ROW_WIDTH = net.runelite.client.ui.PluginPanel.PANEL_WIDTH - 20 - SCROLLBAR_ALLOWANCE;
+
+	/** An item picture. The sprite is 36 wide; this crops the empty margin rather than the item. */
+	static final int ICON = 30;
+
+	/** The gap either side of the middle column of a row. */
+	static final int ROW_GAP = 4;
+
+	/** Padding inside a row. */
+	static final int ROW_PAD = 4;
+
+	/**
+	 * What is left for a name once a row has paid for everything else.
+	 *
+	 * <pre>193 - 8 padding - 30 icon - 8 gaps - 46 for the luck figure = 101</pre>
+	 */
+	static final int NAME_WRAP = 96;
+
 	private Cards()
 	{
 	}

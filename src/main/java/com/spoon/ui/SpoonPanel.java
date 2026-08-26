@@ -53,6 +53,9 @@ public class SpoonPanel extends PluginPanel
 
 	private final JPanel content = new JPanel();
 
+	/** Whether the list of your own spoons is open. Shut each time the plugin starts. */
+	private boolean spooniestOpen;
+
 	@Inject
 	private SpoonPanel(SpoonStore spoons, GroupStore groupStore, ItemIcons icons)
 	{
@@ -157,26 +160,23 @@ public class SpoonPanel extends PluginPanel
 		body.add(summary());
 
 		body.add(Cards.gap(12));
-		body.add(Cards.sectionLabel("Your spooniest"));
+		body.add(spooniestToggle());
 
-		List<Spoon> luckiest = spoons.luckiestFirst();
-		if (luckiest.isEmpty())
+		if (spooniestOpen)
 		{
-			body.add(Cards.gap(4));
-			body.add(Cards.muted(spoons.count() == 0
-				? "Nothing yet. Go and fill a log slot and it will appear here."
-				: "Nothing scored yet — the drops so far had no kill count to judge them on."));
-		}
-
-		int shown = 0;
-		for (Spoon spoon : luckiest)
-		{
-			body.add(Cards.gap(3));
-			body.add(row(spoon, ++shown));
-
-			if (shown == 10)
+			List<Spoon> luckiest = spoons.luckiestFirst();
+			if (luckiest.isEmpty())
 			{
-				break;
+				body.add(Cards.gap(4));
+				body.add(Cards.muted(spoons.count() == 0
+					? "Nothing yet. Go and fill a log slot and it will appear here."
+					: "Nothing scored yet — the drops so far had no kill count to judge them on."));
+			}
+
+			for (Spoon spoon : luckiest)
+			{
+				body.add(Cards.gap(3));
+				body.add(row(spoon));
 			}
 		}
 
@@ -231,6 +231,45 @@ public class SpoonPanel extends PluginPanel
 		return list;
 	}
 
+	/**
+	 * "Your spooniest", which opens to show them.
+	 * <p>
+	 * Shut to begin with, because the front screen is a way in to two things and a list of forty
+	 * drops between them buries both.
+	 */
+	private JPanel spooniestToggle()
+	{
+		JPanel row = new JPanel(new BorderLayout(4, 0));
+		row.setBackground(Theme.CARD);
+		row.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+		row.setAlignmentX(Component.LEFT_ALIGNMENT);
+		row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+
+		JLabel label = new JLabel((spooniestOpen ? "− " : "+ ") + "Your spooniest");
+		label.setFont(Theme.body());
+		label.setForeground(Theme.TEXT_MUTED);
+		row.add(label, BorderLayout.CENTER);
+
+		int scored = spoons.luckiestFirst().size();
+		JLabel count = new JLabel(scored == 0 ? "none yet" : String.valueOf(scored));
+		count.setFont(Theme.body());
+		count.setForeground(Theme.TEXT_MUTED);
+		row.add(count, BorderLayout.EAST);
+
+		row.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent event)
+			{
+				spooniestOpen = !spooniestOpen;
+				rebuild();
+			}
+		});
+
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		return row;
+	}
+
 	/** The headline: how many log slots, and how many of them beat the drop rate. */
 	private JPanel summary()
 	{
@@ -250,11 +289,11 @@ public class SpoonPanel extends PluginPanel
 		return card;
 	}
 
-	private JPanel row(Spoon spoon, int place)
+	private JPanel row(Spoon spoon)
 	{
-		JPanel row = new JPanel(new BorderLayout(6, 0));
+		JPanel row = new JPanel(new BorderLayout(Cards.ROW_GAP, 0));
 		row.setBackground(Theme.CARD);
-		row.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+		row.setBorder(BorderFactory.createEmptyBorder(Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		row.add(icons.label(spoon.getItemId(), spoon.getItemName()), BorderLayout.WEST);
@@ -265,7 +304,7 @@ public class SpoonPanel extends PluginPanel
 
 		// Wrapped: item names run to "Ancient ceremonial mask" and a plain label asks for the lot on
 		// one line, which is enough to widen the whole sidebar.
-		JLabel name = new JLabel(Cards.wrap(spoon.getItemName(), 110));
+		JLabel name = new JLabel(Cards.wrap(spoon.getItemName(), Cards.NAME_WRAP));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);

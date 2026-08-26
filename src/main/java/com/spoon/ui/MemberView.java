@@ -160,9 +160,9 @@ public class MemberView extends JPanel
 
 	private JPanel row(Holder drop)
 	{
-		JPanel row = new JPanel(new BorderLayout(6, 0));
+		JPanel row = new JPanel(new BorderLayout(Cards.ROW_GAP, 0));
 		row.setBackground(Theme.CARD);
-		row.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+		row.setBorder(BorderFactory.createEmptyBorder(Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD, Cards.ROW_PAD));
 		row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		// By id when there is one, by name when there is not: an imported drop carries only a name,
@@ -175,7 +175,7 @@ public class MemberView extends JPanel
 
 		// Wrapped: item names run to "Ancient ceremonial mask" and a plain label asks for the lot on
 		// one line, which is enough to widen the whole sidebar.
-		JLabel name = new JLabel(Cards.wrap(drop.getItemName(), 110));
+		JLabel name = new JLabel(Cards.wrap(drop.getItemName(), Cards.NAME_WRAP));
 		name.setFont(FontManager.getRunescapeBoldFont());
 		name.setForeground(Theme.TEXT);
 		name.setAlignmentX(Component.LEFT_ALIGNMENT);

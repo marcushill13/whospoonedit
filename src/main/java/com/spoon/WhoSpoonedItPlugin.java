@@ -192,6 +192,68 @@ public class WhoSpoonedItPlugin extends Plugin
 	 * Drops have reached a group. Only the open group screen is redrawn, and only by reopening it,
 	 * since the leaderboard it shows is the service's rather than anything held here.
 	 */
+	/**
+	 * Brings back anything a group knows about this account that this client never saw.
+	 * <p>
+	 * An import or a carried claim lands on the service, not here, so without this the group would
+	 * credit somebody with a spoon while their own front screen said nothing had ever happened. Two
+	 * different questions, one of which looks like a broken plugin.
+	 * <p>
+	 * Run after an import and after a claim carries, which are the only two ways it can happen.
+	 */
+	private void catchUpFromGroup(String code)
+	{
+		String rsn = localPlayerName();
+		if (rsn == null)
+		{
+			return;
+		}
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<SpoonApi.MemberDrops> result =
+				api.memberDrops(config.serverUrl(), code, rsn, "recent");
+
+			if (!result.ok())
+			{
+				return;
+			}
+
+			SwingUtilities.invokeLater(() ->
+			{
+				int taken = 0;
+
+				for (com.spoon.data.Holder held : result.getValue().getDrops())
+				{
+					com.spoon.data.Spoon spoon = new com.spoon.data.Spoon();
+					spoon.setItemName(held.getItemName());
+					spoon.setItemId(held.getItemId());
+					spoon.setSource(held.getSource() == null ? "" : held.getSource());
+					spoon.setKillCount(held.getKillCount() == null ? -1 : held.getKillCount());
+					spoon.setDenominator(held.getDenominator() == null ? -1 : held.getDenominator());
+					spoon.setShare(held.getShare() == null ? -1 : held.getShare());
+					spoon.setObtainedAt(held.getObtainedAt());
+
+					// Marked as claimed whatever it was, because this client did not see it happen.
+					spoon.setClaimed(true);
+
+					// Already recorded on the service under its own id, so it must never be sent back.
+					if (spoons.take(spoon))
+					{
+						groups.markSent(code, java.util.Collections.singletonList(spoon.getId()));
+						taken++;
+					}
+				}
+
+				if (taken > 0)
+				{
+					log.debug("Took {} drops back from {}", taken, code);
+					panel.refresh();
+				}
+			});
+		});
+	}
+
 	private void onDropsSent()
 	{
 		SwingUtilities.invokeLater(() ->
@@ -621,6 +683,11 @@ public class WhoSpoonedItPlugin extends Plugin
 					? "Carried. It is on the board, marked as claimed."
 					: "Not carried.");
 
+				if ("accepted".equals(settled))
+				{
+					catchUpFromGroup(code);
+				}
+
 				openGroup(code);
 			});
 		});
@@ -696,6 +763,9 @@ public class WhoSpoonedItPlugin extends Plugin
 						}
 
 						warn("Brought in " + done.getValue().getImported() + " drops.");
+
+						// Whatever of that was this account's own belongs on the front screen too.
+						catchUpFromGroup(code);
 						openGroup(code);
 					});
 				});

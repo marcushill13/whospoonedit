@@ -169,6 +169,30 @@ public class SpoonStore
 		return spooned;
 	}
 
+	/**
+	 * Takes in a drop a group knows about that this client never saw.
+	 * <p>
+	 * Imports and carried claims live only on the service until this runs. Without it the group would
+	 * credit somebody with a spoon while their own front screen said nothing had ever happened, which
+	 * reads as the plugin being broken rather than as two different questions being asked.
+	 * <p>
+	 * Marked as claimed so it is never mistaken for one this client watched, and never sent back: it
+	 * came from the service and already has an id there.
+	 *
+	 * @return whether anything was new
+	 */
+	public boolean take(Spoon spoon)
+	{
+		if (spoon == null || spoon.getItemName().isEmpty() || has(spoon.getItemName()))
+		{
+			return false;
+		}
+
+		spoons.add(spoon);
+		save();
+		return true;
+	}
+
 	public void remove(String itemName)
 	{
 		spoons.removeIf(spoon -> spoon.getItemName().equalsIgnoreCase(itemName));

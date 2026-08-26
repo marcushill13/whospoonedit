@@ -60,7 +60,7 @@ public class Medals
 		JLabel label = new JLabel();
 
 		// Sized up front so the row does not jump when the sprite arrives a moment later.
-		label.setPreferredSize(new Dimension(SIZE + 4, SIZE));
+		label.setPreferredSize(new Dimension(SIZE, SIZE));
 
 		if (place < 1 || place > 3)
 		{

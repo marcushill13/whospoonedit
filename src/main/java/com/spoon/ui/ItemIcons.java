@@ -164,7 +164,7 @@ public class ItemIcons
 		JLabel label = new JLabel();
 
 		// Sized up front so a row does not jump when the picture arrives.
-		label.setPreferredSize(new java.awt.Dimension(36, 32));
+		label.setPreferredSize(new java.awt.Dimension(Cards.ICON, 32));
 		applyTo(label, itemId, itemName);
 
 		return label;
