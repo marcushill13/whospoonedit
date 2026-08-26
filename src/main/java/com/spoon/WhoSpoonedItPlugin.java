@@ -303,7 +303,8 @@ public class WhoSpoonedItPlugin extends Plugin
 					() -> openGroup(code),
 					() -> leave(code, creator),
 					earlierDrops(code),
-					() -> shareEarlier(code));
+					() -> shareEarlier(code),
+					() -> importFromDiscord(code));
 
 				panel.show(view);
 				this.openView = view;
@@ -410,6 +411,113 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		sender.nudge();
+	}
+
+	/**
+	 * Brings in the group's history from its Discord channel.
+	 * <p>
+	 * Asked about first, always. An import that silently discarded a third of a channel is one nobody
+	 * would trust afterwards, so what was found is put in front of the creator before anything is
+	 * kept — including whose names were not recognised, since a name that has been changed is the
+	 * commonest reason for a drop to go missing.
+	 */
+	private void importFromDiscord(String code)
+	{
+		String creatorToken = groups.creatorTokenFor(code);
+		if (creatorToken == null)
+		{
+			warn("Only whoever made this group can import its history.");
+			return;
+		}
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<SpoonApi.Import> look =
+				api.importFromDiscord(config.serverUrl(), code, creatorToken, true);
+
+			SwingUtilities.invokeLater(() ->
+			{
+				if (!look.ok())
+				{
+					warn(look.getError());
+					return;
+				}
+
+				SpoonApi.Import found = look.getValue();
+				if (found.getMatched() == 0)
+				{
+					warn(describe(found) + System.lineSeparator() + System.lineSeparator()
+						+ "Nothing to bring in.");
+					return;
+				}
+
+				int answer = javax.swing.JOptionPane.showConfirmDialog(
+					panel,
+					describe(found) + System.lineSeparator() + System.lineSeparator() + "Bring them in?",
+					"Who Spooned It?",
+					javax.swing.JOptionPane.YES_NO_OPTION);
+
+				if (answer != javax.swing.JOptionPane.YES_OPTION)
+				{
+					return;
+				}
+
+				executor.execute(() ->
+				{
+					SpoonApi.Result<SpoonApi.Import> done =
+						api.importFromDiscord(config.serverUrl(), code, creatorToken, false);
+
+					SwingUtilities.invokeLater(() ->
+					{
+						if (!done.ok())
+						{
+							warn(done.getError());
+							return;
+						}
+
+						warn("Brought in " + done.getValue().getImported() + " drops.");
+						openGroup(code);
+					});
+				});
+			});
+		});
+	}
+
+	/** What the import found, in words rather than numbers on their own. */
+	private String describe(SpoonApi.Import found)
+	{
+		StringBuilder text = new StringBuilder();
+		text.append("Found ").append(found.getFound()).append(" collection log messages.")
+			.append(System.lineSeparator())
+			.append(found.getMatched()).append(" belong to people in this group.");
+
+		if (found.getWithoutKillCount() > 0)
+		{
+			text.append(System.lineSeparator())
+				.append(found.getWithoutKillCount())
+				.append(" have no kill count, so they count but cannot be scored.");
+		}
+
+		if (!found.getUnmatched().isEmpty())
+		{
+			text.append(System.lineSeparator()).append(System.lineSeparator())
+				.append("Not in this group, and ignored:");
+
+			int shown = 0;
+			for (java.util.Map.Entry<String, Integer> entry : found.getUnmatched().entrySet())
+			{
+				if (shown++ == 6)
+				{
+					text.append(System.lineSeparator()).append("  and others");
+					break;
+				}
+
+				text.append(System.lineSeparator()).append("  ").append(entry.getKey())
+					.append(" (").append(entry.getValue()).append(")");
+			}
+		}
+
+		return text.toString();
 	}
 
 	private void leave(String code, boolean creator)

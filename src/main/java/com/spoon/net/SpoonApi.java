@@ -144,6 +144,69 @@ public class SpoonApi
 			.header("X-Member-Token", memberToken));
 	}
 
+	/**
+	 * Asks the service to read the group's linked Discord channel.
+	 *
+	 * @param dryRun report what would happen without doing it, which is what the plugin shows first
+	 */
+	public Result<Import> importFromDiscord(
+		String baseUrl, String code, String creatorToken, boolean dryRun)
+	{
+		JsonObject body = new JsonObject();
+		body.addProperty("dryRun", dryRun);
+
+		Request request = new Request.Builder()
+			.url(url(baseUrl, "v1", "groups", code, "import"))
+			.post(RequestBody.create(JSON, gson.toJson(body)))
+			.header("X-Creator-Token", creatorToken)
+			.build();
+
+		try (Response response = httpClient.newCall(request).execute())
+		{
+			ResponseBody responseBody = response.body();
+			String text = responseBody == null ? "" : responseBody.string();
+
+			if (!response.isSuccessful())
+			{
+				// The service's own wording matters here more than anywhere: it is what tells someone to
+				// invite the bot, or that the channel could not be read.
+				return Result.failed(messageIn(text, "Could not import"));
+			}
+
+			return Result.of(gson.fromJson(text, Import.class));
+		}
+		catch (IOException e)
+		{
+			return Result.failed("Could not reach the server");
+		}
+		catch (JsonSyntaxException e)
+		{
+			return Result.failed("The server sent something unreadable");
+		}
+	}
+
+	/** What an import found, or would find. */
+	@lombok.Data
+	public static class Import
+	{
+		/** Collection log messages seen in the channel. */
+		private int found;
+
+		/** Messages that were not collection log notifications at all. */
+		private int skipped;
+
+		/** Of those found, how many belong to somebody in this group. */
+		private int matched;
+
+		private int imported;
+
+		/** Drops with no kill count recorded, which can be kept but never scored. */
+		private int withoutKillCount;
+
+		/** Names seen in the channel that are not in this group, and how many drops each had. */
+		private java.util.Map<String, Integer> unmatched = new java.util.LinkedHashMap<>();
+	}
+
 	/** Everyone in the group who has one item, luckiest first. The question this is all named after. */
 	public Result<List<Holder>> whoSpoonedIt(String baseUrl, String code, String itemName)
 	{

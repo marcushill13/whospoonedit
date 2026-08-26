@@ -72,7 +72,8 @@ public class GroupView extends JPanel
 		Runnable onRefresh,
 		Runnable onLeave,
 		int earlierDrops,
-		Runnable onShareEarlier)
+		Runnable onShareEarlier,
+		Runnable onImport)
 	{
 		setLayout(new BorderLayout());
 		setBackground(Theme.BACKGROUND);
@@ -105,6 +106,12 @@ public class GroupView extends JPanel
 		earlierHolder.setAlignmentX(Component.LEFT_ALIGNMENT);
 		body.add(earlierHolder);
 		setEarlierDrops(earlierDrops);
+
+		if (creator)
+		{
+			body.add(Cards.gap(8));
+			body.add(importRow(onImport));
+		}
 
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
@@ -144,6 +151,36 @@ public class GroupView extends JPanel
 		row.add(refresh);
 
 		return row;
+	}
+
+	/**
+	 * The offer to bring in what the group already has sitting in Discord.
+	 * <p>
+	 * Shown only to whoever made the group, because one person's import becomes everyone's history.
+	 * Optional in every sense: a group works perfectly without ever pressing this.
+	 */
+	private JPanel importRow(Runnable onImport)
+	{
+		JPanel card = Cards.card();
+
+		JLabel heading = new JLabel("Import from Discord");
+		heading.setFont(Theme.heading());
+		heading.setForeground(Theme.GOLD);
+		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+		card.add(heading);
+
+		card.add(Cards.gap(2));
+		card.add(Cards.muted("If your group posts Dink messages to a channel, the drops in it can be "
+			+ "brought in. You will be shown what was found before anything is kept."));
+
+		card.add(Cards.gap(6));
+		JButton go = Cards.button("Look for history");
+		go.setAlignmentX(Component.LEFT_ALIGNMENT);
+		go.addActionListener(event -> onImport.run());
+		card.add(go);
+
+		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, card.getPreferredSize().height));
+		return card;
 	}
 
 	/**
