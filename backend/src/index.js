@@ -509,7 +509,10 @@ async function importFromDiscord(code, request, env)
 		catch (error)
 		{
 			console.error(error);
-			return json({ error: 'Could not read that channel. Is the bot still in the server?' }, 502);
+			return json({
+				error: 'Could not read that channel. ' + error.message,
+				channelId: group.discord_channel_id
+			}, 502);
 		}
 	}
 

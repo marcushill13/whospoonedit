@@ -9,6 +9,8 @@ import com.spoon.track.GroupStore;
 import com.spoon.track.SpoonStore;
 import com.spoon.net.SpoonApi;
 import com.spoon.ui.CreateGroupPanel;
+import com.spoon.ui.ClaimPanel;
+import com.spoon.ui.ClaimsPanel;
 import com.spoon.ui.GroupView;
 import com.spoon.ui.JoinGroupPanel;
 import com.spoon.ui.Medals;
@@ -62,6 +64,12 @@ public class WhoSpoonedItPlugin extends Plugin
 
 	@Inject
 	private DropSender sender;
+
+	@Inject
+	private com.spoon.data.DropRates dropRates;
+
+	@Inject
+	private net.runelite.client.game.ItemManager itemManager;
 
 	@Inject
 	private SpoonApi api;
@@ -198,6 +206,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	{
 		openView = null;
 		openCode = null;
+		openClaims = null;
 		panel.show(new CreateGroupPanel(this::doCreate, panel::showList));
 	}
 
@@ -205,6 +214,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	{
 		openView = null;
 		openCode = null;
+		openClaims = null;
 		panel.show(new JoinGroupPanel(this::doJoin, panel::showList));
 	}
 
@@ -304,7 +314,9 @@ public class WhoSpoonedItPlugin extends Plugin
 					() -> leave(code, creator),
 					earlierDrops(code),
 					() -> shareEarlier(code),
-					() -> importFromDiscord(code));
+					() -> importFromDiscord(code),
+					claimsPanel(code),
+					() -> claimADrop(code));
 
 				panel.show(view);
 				this.openView = view;
@@ -318,6 +330,9 @@ public class WhoSpoonedItPlugin extends Plugin
 
 	/** Which group that screen is showing, so a send can refresh the right one. */
 	private String openCode;
+
+	/** The claims section of the open group, filled in once the service answers. */
+	private ClaimsPanel openClaims;
 
 	private void search(String code, String query)
 	{
@@ -411,6 +426,154 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		sender.nudge();
+	}
+
+	/**
+	 * The claims section, empty until the service answers.
+	 * <p>
+	 * Loaded after the screen is drawn rather than before it, so a slow answer holds nothing up.
+	 */
+	private ClaimsPanel claimsPanel(String code)
+	{
+		ClaimsPanel claims = new ClaimsPanel(
+			(claimId, approve) -> vote(code, claimId, approve),
+			net.runelite.client.util.LinkBrowser::browse);
+
+		openClaims = claims;
+		claims.showMessage("Looking...");
+		refreshClaims(code, claims);
+
+		return claims;
+	}
+
+	private void refreshClaims(String code, ClaimsPanel into)
+	{
+		String token = groups.memberTokenFor(code);
+		if (token == null)
+		{
+			into.showMessage("Join this group to see what it is voting on.");
+			return;
+		}
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<java.util.List<com.spoon.data.Claim>> result =
+				api.claims(config.serverUrl(), code, token);
+
+			SwingUtilities.invokeLater(() ->
+			{
+				// Only if that same section is still on screen. A slow answer arriving after someone has
+				// gone back should change nothing.
+				if (openClaims != into)
+				{
+					return;
+				}
+
+				if (!result.ok())
+				{
+					into.showMessage(result.getError());
+					return;
+				}
+
+				into.show(result.getValue());
+			});
+		});
+	}
+
+	private void claimADrop(String code)
+	{
+		openView = null;
+		openCode = null;
+		openClaims = null;
+		panel.show(new ClaimPanel(claim -> submitClaim(code, claim), () -> openGroup(code)));
+	}
+
+	private void submitClaim(String code, com.spoon.data.Claim claim)
+	{
+		String token = groups.memberTokenFor(code);
+		if (token == null)
+		{
+			warn("Join this group before claiming anything.");
+			return;
+		}
+
+		// Looked up here rather than typed, so a claim is scored on the same rate as a drop the plugin
+		// watched. Nobody gets to name their own odds.
+		if (claim.getSource() != null && !claim.getSource().isEmpty())
+		{
+			for (com.spoon.data.DropRates.Drop drop : dropRates.dropsFrom(claim.getSource()))
+			{
+				net.runelite.api.ItemComposition composition =
+					itemManager.getItemComposition(drop.itemId);
+
+				if (composition != null && claim.getItemName().equalsIgnoreCase(composition.getName()))
+				{
+					claim.setItemId(drop.itemId);
+					claim.setDenominator(drop.denominator);
+					break;
+				}
+			}
+		}
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<java.util.List<com.spoon.data.Claim>> result =
+				api.claim(config.serverUrl(), code, token, claim);
+
+			SwingUtilities.invokeLater(() ->
+			{
+				if (!result.ok())
+				{
+					warn(result.getError());
+					return;
+				}
+
+				warn("Put to the group. They will vote on it.");
+				openGroup(code);
+			});
+		});
+	}
+
+	private void vote(String code, String claimId, boolean approve)
+	{
+		String token = groups.memberTokenFor(code);
+		if (token == null)
+		{
+			return;
+		}
+
+		executor.execute(() ->
+		{
+			SpoonApi.Result<String> result = api.vote(config.serverUrl(), code, token, claimId, approve);
+
+			SwingUtilities.invokeLater(() ->
+			{
+				if (!result.ok())
+				{
+					warn(result.getError());
+					return;
+				}
+
+				String settled = result.getValue();
+				if (settled == null)
+				{
+					// Still waiting on other people; only the tally has moved.
+					if (openCode != null && openClaims != null)
+					{
+						refreshClaims(openCode, openClaims);
+					}
+
+					return;
+				}
+
+				// Settled, so the leaderboard has moved too and the whole screen is stale.
+				warn("accepted".equals(settled)
+					? "Carried. It is on the board, marked as claimed."
+					: "Not carried.");
+
+				openGroup(code);
+			});
+		});
 	}
 
 	/**

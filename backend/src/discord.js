@@ -86,7 +86,21 @@ export async function fetchChannelHistory(channelId, botToken, notBefore = 0)
 
 		if (!response.ok)
 		{
-			throw new Error(`Discord said ${response.status} reading that channel`);
+			// Discord's own wording, carried out to the plugin. "Missing Access" and "Unknown Channel"
+			// call for completely different fixes, and a message that says neither leaves someone
+			// guessing at permissions when the bot was never in the server.
+			let detail = '';
+			try
+			{
+				const problem = await response.json();
+				detail = problem?.message ? `: ${problem.message}` : '';
+			}
+			catch (ignored)
+			{
+				// Not JSON. The status alone will have to do.
+			}
+
+			throw new Error(`Discord said ${response.status}${detail}`);
 		}
 
 		const batch = await response.json();

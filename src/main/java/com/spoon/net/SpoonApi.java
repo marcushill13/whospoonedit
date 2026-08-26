@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.spoon.data.Claim;
 import com.spoon.data.Group;
 import com.spoon.data.Holder;
 import com.spoon.data.Standing;
@@ -224,6 +225,108 @@ public class SpoonApi
 
 		/** What to type once the bot is in, with the group's own code already in it. */
 		private String linkCommand;
+	}
+
+	/**
+	 * Puts a drop to the group that the plugin never saw.
+	 */
+	public Result<List<Claim>> claim(
+		String baseUrl, String code, String memberToken, Claim claim)
+	{
+		JsonObject body = new JsonObject();
+		body.addProperty("itemName", claim.getItemName());
+		body.addProperty("itemId", claim.getItemId());
+
+		if (claim.getSource() != null)
+		{
+			body.addProperty("source", claim.getSource());
+		}
+
+		if (claim.getKillCount() != null)
+		{
+			body.addProperty("killCount", claim.getKillCount());
+		}
+
+		if (claim.getDenominator() != null)
+		{
+			body.addProperty("denominator", claim.getDenominator());
+		}
+
+		if (claim.getEvidence() != null && !claim.getEvidence().isEmpty())
+		{
+			body.addProperty("evidence", claim.getEvidence());
+		}
+
+		if (claim.getNote() != null && !claim.getNote().isEmpty())
+		{
+			body.addProperty("note", claim.getNote());
+		}
+
+		Request request = new Request.Builder()
+			.url(url(baseUrl, "v1", "groups", code, "claims"))
+			.post(RequestBody.create(JSON, gson.toJson(body)))
+			.header("X-Member-Token", memberToken)
+			.build();
+
+		return readList(request, "claims", new TypeToken<List<Claim>>()
+		{
+		}.getType(), "Could not put that to the group");
+	}
+
+	/** Everything the group is still voting on. */
+	public Result<List<Claim>> claims(String baseUrl, String code, String memberToken)
+	{
+		Request request = new Request.Builder()
+			.url(url(baseUrl, "v1", "groups", code, "claims"))
+			.get()
+			.header("X-Member-Token", memberToken)
+			.build();
+
+		return readList(request, "claims", new TypeToken<List<Claim>>()
+		{
+		}.getType(), "Could not load the claims");
+	}
+
+	/**
+	 * A yes or a no.
+	 *
+	 * @return what it settled as, or null if it is still waiting on other people
+	 */
+	public Result<String> vote(
+		String baseUrl, String code, String memberToken, String claimId, boolean approve)
+	{
+		JsonObject body = new JsonObject();
+		body.addProperty("approve", approve);
+
+		Request request = new Request.Builder()
+			.url(url(baseUrl, "v1", "groups", code, "claims", claimId, "vote"))
+			.post(RequestBody.create(JSON, gson.toJson(body)))
+			.header("X-Member-Token", memberToken)
+			.build();
+
+		try (Response response = httpClient.newCall(request).execute())
+		{
+			ResponseBody responseBody = response.body();
+			String text = responseBody == null ? "" : responseBody.string();
+
+			if (!response.isSuccessful())
+			{
+				return Result.failed(messageIn(text, "Could not vote"));
+			}
+
+			JsonObject root = gson.fromJson(text, JsonObject.class);
+			return Result.of(root != null && root.has("settled") && !root.get("settled").isJsonNull()
+				? root.get("settled").getAsString()
+				: null);
+		}
+		catch (IOException e)
+		{
+			return Result.failed("Could not reach the server");
+		}
+		catch (JsonSyntaxException e)
+		{
+			return Result.failed("The server sent something unreadable");
+		}
 	}
 
 	/** Everyone in the group who has one item, luckiest first. The question this is all named after. */

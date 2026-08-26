@@ -74,7 +74,9 @@ public class GroupView extends JPanel
 		Runnable onLeave,
 		int earlierDrops,
 		Runnable onShareEarlier,
-		Runnable onImport)
+		Runnable onImport,
+		ClaimsPanel claims,
+		Runnable onClaim)
 	{
 		setLayout(new BorderLayout());
 		setBackground(Theme.BACKGROUND);
@@ -115,6 +117,11 @@ public class GroupView extends JPanel
 		body.add(leaderboardList(leaderboard, yourName, medal));
 
 		body.add(Cards.gap(16));
+		body.add(claimsHeader(onClaim));
+		body.add(Cards.gap(4));
+		body.add(claims);
+
+		body.add(Cards.gap(16));
 		body.add(Cards.sectionLabel("Who spooned it?"));
 		body.add(Cards.gap(4));
 		body.add(searchRow(onSearch));
@@ -146,6 +153,29 @@ public class GroupView extends JPanel
 		refresh.addActionListener(event -> onRefresh.run());
 		row.add(refresh);
 
+		return row;
+	}
+
+	/**
+	 * "Up for a vote", with the way to add one beside it.
+	 * <p>
+	 * Anyone may claim. Nobody may carry their own, so putting the button here rather than hiding it
+	 * behind the creator's block is safe and is where people will look for it.
+	 */
+	private JPanel claimsHeader(Runnable onClaim)
+	{
+		JPanel row = new JPanel(new BorderLayout(4, 0));
+		row.setBackground(Theme.BACKGROUND);
+		row.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		row.add(Cards.sectionLabel("Up for a vote"), BorderLayout.WEST);
+
+		JButton add = Cards.button("Claim a drop");
+		add.setToolTipText("For something you got before this plugin was watching");
+		add.addActionListener(event -> onClaim.run());
+		row.add(add, BorderLayout.EAST);
+
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
 		return row;
 	}
 
