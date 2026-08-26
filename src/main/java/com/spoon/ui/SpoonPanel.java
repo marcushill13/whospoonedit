@@ -2,6 +2,7 @@ package com.spoon.ui;
 
 import com.spoon.data.Luck;
 import com.spoon.data.Spoon;
+import com.spoon.track.GroupStore;
 import com.spoon.track.SpoonStore;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,16 +36,31 @@ public class SpoonPanel extends PluginPanel
 	private static final SimpleDateFormat WHEN = new SimpleDateFormat("d MMM yyyy");
 
 	private final SpoonStore spoons;
+	private final GroupStore groupStore;
 	private final ItemManager itemManager;
+
+	/** Set by the plugin, so this class need not know how a group is made or opened. */
+	private Runnable onCreate = () ->
+	{
+	};
+
+	private Runnable onJoin = () ->
+	{
+	};
+
+	private java.util.function.Consumer<String> onOpenGroup = code ->
+	{
+	};
 
 	private final JPanel content = new JPanel();
 
 	@Inject
-	private SpoonPanel(SpoonStore spoons, ItemManager itemManager)
+	private SpoonPanel(SpoonStore spoons, GroupStore groupStore, ItemManager itemManager)
 	{
 		super(false);
 
 		this.spoons = spoons;
+		this.groupStore = groupStore;
 		this.itemManager = itemManager;
 
 		setLayout(new BorderLayout());
@@ -67,6 +83,14 @@ public class SpoonPanel extends PluginPanel
 		add(scroll, BorderLayout.CENTER);
 
 		rebuild();
+	}
+
+	public void setActions(Runnable onCreate, Runnable onJoin,
+		java.util.function.Consumer<String> onOpenGroup)
+	{
+		this.onCreate = onCreate;
+		this.onJoin = onJoin;
+		this.onOpenGroup = onOpenGroup;
 	}
 
 	/** Called whenever a drop lands, so the panel keeps up without anyone pressing anything. */
@@ -94,6 +118,19 @@ public class SpoonPanel extends PluginPanel
 		body.add(strapline);
 
 		body.add(Cards.gap(12));
+
+		// The two things you can do, before anything you have. Someone opening this for the first time
+		// should see the way in, not an empty list of their own drops.
+		body.add(actions());
+
+		body.add(Cards.gap(14));
+		body.add(Cards.sectionLabel("Your groups"));
+		body.add(Cards.gap(4));
+		body.add(groups());
+
+		body.add(Cards.gap(16));
+		body.add(Cards.sectionLabel("Personal spoonage"));
+		body.add(Cards.gap(4));
 		body.add(summary());
 
 		body.add(Cards.gap(12));
@@ -124,6 +161,51 @@ public class SpoonPanel extends PluginPanel
 		content.add(body, BorderLayout.NORTH);
 		content.revalidate();
 		content.repaint();
+	}
+
+	/** Create and Join, side by side, because neither is the lesser of the two. */
+	private JPanel actions()
+	{
+		JPanel row = new JPanel(new java.awt.GridLayout(1, 2, 8, 0));
+		row.setBackground(Theme.BACKGROUND);
+		row.setAlignmentX(Component.LEFT_ALIGNMENT);
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+
+		row.add(new ActionTile("Create", onCreate));
+		row.add(new ActionTile("Join", onJoin));
+
+		return row;
+	}
+
+	/**
+	 * The groups this account is in. More than one is normal — a clan and a group of mates are
+	 * different competitions over the same collection log.
+	 */
+	private JPanel groups()
+	{
+		JPanel list = new JPanel();
+		list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+		list.setBackground(Theme.BACKGROUND);
+		list.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		List<GroupStore.Membership> mine = groupStore.all();
+		if (mine.isEmpty())
+		{
+			list.add(Cards.muted("None yet. Make one, or join with a code from a mate."));
+			return list;
+		}
+
+		for (GroupStore.Membership membership : mine)
+		{
+			int members = membership.group.getMembers();
+			list.add(new GroupCard(
+				membership.group.getName(),
+				members + (members == 1 ? " member" : " members"),
+				() -> onOpenGroup.accept(membership.group.getCode())));
+			list.add(Cards.gap(5));
+		}
+
+		return list;
 	}
 
 	/** The headline: how many log slots, and how many of them beat the drop rate. */

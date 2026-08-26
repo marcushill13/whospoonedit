@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 import com.spoon.data.Luck;
 import com.spoon.data.Spoon;
 import com.spoon.track.ClogWatcher;
+import com.spoon.track.GroupStore;
 import com.spoon.track.SpoonStore;
 import com.spoon.ui.SpoonPanel;
 import java.awt.Color;
@@ -47,6 +48,9 @@ public class WhoSpoonedItPlugin extends Plugin
 	private SpoonStore spoons;
 
 	@Inject
+	private GroupStore groups;
+
+	@Inject
 	private SpoonPanel panel;
 
 	@Inject
@@ -75,6 +79,11 @@ public class WhoSpoonedItPlugin extends Plugin
 		watcher.setOnCaptured(this::record);
 
 		spoons.load();
+		groups.load();
+
+		// Wired here rather than inside the panel, so the panel stays a view and does not have to know
+		// how a group gets made.
+		panel.setActions(this::createGroup, this::joinGroup, this::openGroup);
 
 		navigationButton = NavigationButton.builder()
 			.tooltip("Who Spooned It?")
@@ -134,8 +143,25 @@ public class WhoSpoonedItPlugin extends Plugin
 			// Drops are stored per account, so they cannot be read until there is an account to read
 			// them for. Logging in on a second character swaps them over rather than merging them.
 			spoons.load();
+			groups.load();
 			panel.refresh();
 		}
+	}
+
+	private void createGroup()
+	{
+		// Filled in with the create screen next; the panel already knows where to send the press.
+		log.debug("Create pressed");
+	}
+
+	private void joinGroup()
+	{
+		log.debug("Join pressed");
+	}
+
+	private void openGroup(String code)
+	{
+		log.debug("Open group {}", code);
 	}
 
 	/**
