@@ -1,0 +1,9 @@
+name = "spoons"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# Created with `wrangler d1 create spoons`. The id comes from `wrangler d1 list` if it is ever lost.
+[[d1_databases]]
+binding = "DB"
+database_name = "spoons"
+database_id = "f56f5113-44ab-4614-bda1-66186a4d3de1"
