@@ -11,6 +11,13 @@
  */
 
 import { parseDinkMessages } from './dink.js';
+import {
+	fetchChannelHistory,
+	handleInteraction,
+	inviteUrl,
+	registerCommands,
+	verifySignature
+} from './discord.js';
 
 /** Codes people read aloud, so no O/0 or I/1. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -48,6 +55,18 @@ async function route(request, env)
 	if (request.method === 'OPTIONS')
 	{
 		return withCors(new Response(null, { status: 204 }));
+	}
+
+	// Discord posts here for every slash command, and to check the endpoint is real.
+	if (path === '/discord/interactions' && request.method === 'POST')
+	{
+		return discordInteraction(request, env);
+	}
+
+	// Run once after deploying, to tell Discord what the command looks like.
+	if (path === '/discord/register' && request.method === 'POST')
+	{
+		return withCors(await registerSlashCommand(request, env));
 	}
 
 	if (path === '/v1/groups' && request.method === 'POST')
@@ -441,7 +460,38 @@ async function importFromDiscord(code, request, env)
 	}
 
 	const body = await readJson(request);
-	const { drops, skipped, names } = parseDinkMessages(body?.messages);
+
+	// Two ways in, one code path. Messages handed over directly are how a file export works; asking
+	// for the linked channel is how the bot works.
+	let messages = body?.messages;
+
+	if (!Array.isArray(messages))
+	{
+		if (!group.discord_channel_id)
+		{
+			return json({
+				error: 'No Discord channel is linked to this group yet. '
+					+ 'Invite the bot, then type /spoons link ' + code + ' in your Dink channel.'
+			}, 409);
+		}
+
+		if (!env.DISCORD_BOT_TOKEN)
+		{
+			return json({ error: 'This service has no Discord bot configured' }, 501);
+		}
+
+		try
+		{
+			messages = await fetchChannelHistory(group.discord_channel_id, env.DISCORD_BOT_TOKEN);
+		}
+		catch (error)
+		{
+			console.error(error);
+			return json({ error: 'Could not read that channel. Is the bot still in the server?' }, 502);
+		}
+	}
+
+	const { drops, skipped, names } = parseDinkMessages(messages);
 
 	const rows = await env.DB.prepare('SELECT rsn FROM members WHERE group_code = ?')
 		.bind(code)
@@ -533,6 +583,46 @@ async function importFromDiscord(code, request, env)
 		imported: matched.length,
 		leaderboard: await leaderboardFor(code, env)
 	});
+}
+
+/**
+ * A slash command, or Discord checking the endpoint answers.
+ *
+ * The signature is checked first and always. Discord refuses to register an endpoint that does not
+ * reject a bad one, and without it anybody could post an interaction claiming to be anybody.
+ */
+async function discordInteraction(request, env)
+{
+	const body = await request.text();
+
+	if (!await verifySignature(request, body, env.DISCORD_PUBLIC_KEY))
+	{
+		return new Response('bad signature', { status: 401 });
+	}
+
+	let interaction;
+	try
+	{
+		interaction = JSON.parse(body);
+	}
+	catch (error)
+	{
+		return new Response('bad body', { status: 400 });
+	}
+
+	return json(await handleInteraction(interaction, env));
+}
+
+async function registerSlashCommand(request, env)
+{
+	// Guarded by the bot token itself, since there is nobody else this could belong to.
+	if (request.headers.get('X-Bot-Token') !== env.DISCORD_BOT_TOKEN)
+	{
+		return json({ error: 'No' }, 403);
+	}
+
+	await registerCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_BOT_TOKEN);
+	return json({ registered: true, invite: inviteUrl(env.DISCORD_APPLICATION_ID) });
 }
 
 async function memberFor(code, request, env)

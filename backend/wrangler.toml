@@ -7,3 +7,10 @@ compatibility_date = "2026-01-01"
 binding = "DB"
 database_name = "spoons"
 database_id = "f56f5113-44ab-4614-bda1-66186a4d3de1"
+
+# The Discord application. Neither of these is secret: the id is in the invite link everyone clicks,
+# and the public key is what proves a request came from Discord rather than anything that proves who
+# we are. The bot token is a secret and is set with `wrangler secret put DISCORD_BOT_TOKEN`.
+[vars]
+DISCORD_APPLICATION_ID = "1542199065490493511"
+DISCORD_PUBLIC_KEY = "f37ceb74e02d15515d55a511a16974e0bcdb43902ab908080723430d53695036"

@@ -13,7 +13,14 @@ CREATE TABLE IF NOT EXISTS groups (
 	-- Proves who may rename or delete the group. Never sent to anyone else.
 	creator_token TEXT NOT NULL,
 
-	created_at    INTEGER NOT NULL
+	created_at    INTEGER NOT NULL,
+
+	-- The channel its Dink messages go to, set by /spoons link in Discord.
+	--
+	-- Only ever which channel. Whether that channel may be read is decided by the plugin, where the
+	-- creator token is: a slash command cannot prove who typed it, because Discord knows a Discord
+	-- account and not a RuneScape one.
+	discord_channel_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS members (
