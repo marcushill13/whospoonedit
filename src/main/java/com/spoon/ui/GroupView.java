@@ -63,7 +63,9 @@ public class GroupView extends JPanel
 		Consumer<String> onSearch,
 		Runnable onBack,
 		Runnable onRefresh,
-		Runnable onLeave)
+		Runnable onLeave,
+		int earlierDrops,
+		Runnable onShareEarlier)
 	{
 		setLayout(new BorderLayout());
 		setBackground(Theme.BACKGROUND);
@@ -88,6 +90,12 @@ public class GroupView extends JPanel
 		codeHolder.setAlignmentX(Component.LEFT_ALIGNMENT);
 		renderCode();
 		body.add(codeHolder);
+
+		if (earlierDrops > 0)
+		{
+			body.add(Cards.gap(8));
+			body.add(shareEarlier(earlierDrops, onShareEarlier));
+		}
 
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
@@ -127,6 +135,36 @@ public class GroupView extends JPanel
 		row.add(refresh);
 
 		return row;
+	}
+
+	/**
+	 * The offer to hand over what was already recorded before joining.
+	 * <p>
+	 * Offered rather than done, because joining a group should not push a collection log built up over
+	 * years at everyone without being asked. Shown only while there is something to send, so it
+	 * disappears once it has been taken up.
+	 */
+	private JPanel shareEarlier(int count, Runnable onShare)
+	{
+		JPanel card = Cards.card();
+
+		JLabel heading = new JLabel(count + (count == 1 ? " earlier drop" : " earlier drops"));
+		heading.setFont(Theme.heading());
+		heading.setForeground(Theme.GOLD);
+		heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+		card.add(heading);
+
+		card.add(Cards.gap(2));
+		card.add(Cards.muted("Recorded before you joined, and not shared with this group."));
+
+		card.add(Cards.gap(6));
+		JButton share = Cards.button("Share them");
+		share.setAlignmentX(Component.LEFT_ALIGNMENT);
+		share.addActionListener(event -> onShare.run());
+		card.add(share);
+
+		card.setMaximumSize(new Dimension(Integer.MAX_VALUE, card.getPreferredSize().height));
+		return card;
 	}
 
 	/** Fills {@link #codeHolder}, open or shut. */

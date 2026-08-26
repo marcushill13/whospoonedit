@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 import com.spoon.data.Luck;
 import com.spoon.data.Spoon;
 import com.spoon.track.ClogWatcher;
+import com.spoon.track.DropSender;
 import com.spoon.track.GroupStore;
 import com.spoon.track.SpoonStore;
 import com.spoon.net.SpoonApi;
@@ -60,6 +61,9 @@ public class WhoSpoonedItPlugin extends Plugin
 	private SpoonPanel panel;
 
 	@Inject
+	private DropSender sender;
+
+	@Inject
 	private SpoonApi api;
 
 	@Inject
@@ -96,6 +100,10 @@ public class WhoSpoonedItPlugin extends Plugin
 		spoons.load();
 		groups.load();
 
+		// An open leaderboard catches up on its own once drops land, rather than waiting for a press.
+		sender.setOnSent(this::onDropsSent);
+		sender.start();
+
 		// Wired here rather than inside the panel, so the panel stays a view and does not have to know
 		// how a group gets made.
 		panel.setActions(this::createGroup, this::joinGroup, this::openGroup);
@@ -113,6 +121,7 @@ public class WhoSpoonedItPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
+		sender.stop();
 		eventBus.unregister(watcher);
 		clientToolbar.removeNavigation(navigationButton);
 	}
@@ -130,6 +139,9 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 
 		panel.refresh();
+
+		// Off to every group this account is in. A drop is not shared with one and hidden from another.
+		sender.nudge();
 
 		if (config.announceInChat() && spoon.isScored())
 		{
@@ -163,13 +175,36 @@ public class WhoSpoonedItPlugin extends Plugin
 		}
 	}
 
+	/**
+	 * Drops have reached a group. Only the open group screen is redrawn, and only by reopening it,
+	 * since the leaderboard it shows is the service's rather than anything held here.
+	 */
+	private void onDropsSent()
+	{
+		SwingUtilities.invokeLater(() ->
+		{
+			if (openView != null && openCode != null)
+			{
+				openGroup(openCode);
+			}
+			else
+			{
+				panel.refresh();
+			}
+		});
+	}
+
 	private void createGroup()
 	{
+		openView = null;
+		openCode = null;
 		panel.show(new CreateGroupPanel(this::doCreate, panel::showList));
 	}
 
 	private void joinGroup()
 	{
+		openView = null;
+		openCode = null;
 		panel.show(new JoinGroupPanel(this::doJoin, panel::showList));
 	}
 
@@ -266,16 +301,22 @@ public class WhoSpoonedItPlugin extends Plugin
 					query -> search(code, query),
 					panel::showList,
 					() -> openGroup(code),
-					() -> leave(code, creator));
+					() -> leave(code, creator),
+					earlierDrops(code),
+					() -> shareEarlier(code));
 
 				panel.show(view);
 				this.openView = view;
+				this.openCode = code;
 			});
 		});
 	}
 
 	/** Held so search results can be filled into the group screen that asked for them. */
 	private GroupView openView;
+
+	/** Which group that screen is showing, so a send can refresh the right one. */
+	private String openCode;
 
 	private void search(String code, String query)
 	{
@@ -315,6 +356,52 @@ public class WhoSpoonedItPlugin extends Plugin
 				asked.showHolders(query.trim(), result.getValue(), medals::label);
 			});
 		});
+	}
+
+	/**
+	 * How many recorded drops predate joining this group, and so have not been shared.
+	 * <p>
+	 * Counted against everything already sent, so the offer disappears once it has been taken up
+	 * rather than sitting there claiming there is more to give.
+	 */
+	private int earlierDrops(String code)
+	{
+		com.spoon.track.GroupStore.Membership membership = groups.find(code);
+		if (membership == null || membership.sharedFrom == 0)
+		{
+			return 0;
+		}
+
+		int earlier = 0;
+		for (com.spoon.data.Spoon spoon : spoons.all())
+		{
+			if (spoon.getObtainedAt() < membership.sharedFrom
+				&& (membership.sent == null || !membership.sent.contains(spoon.getId())))
+			{
+				earlier++;
+			}
+		}
+
+		return earlier;
+	}
+
+	private void shareEarlier(String code)
+	{
+		int answer = javax.swing.JOptionPane.showConfirmDialog(
+			panel,
+			"Share every drop already recorded on this account with this group?"
+				+ System.lineSeparator() + System.lineSeparator()
+				+ "They will appear on its leaderboard and in its searches.",
+			"Who Spooned It?",
+			javax.swing.JOptionPane.YES_NO_OPTION);
+
+		if (answer != javax.swing.JOptionPane.YES_OPTION)
+		{
+			return;
+		}
+
+		groups.shareEverything(code);
+		sender.nudge();
 	}
 
 	private void leave(String code, boolean creator)

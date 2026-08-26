@@ -37,6 +37,18 @@ public class GroupStore
 
 		public String memberToken;
 
+		/**
+		 * Drops from this moment on are shared with this group; earlier ones are not.
+		 * <p>
+		 * Set to the moment of joining, because joining a group should not hand over a collection log
+		 * built up over years without being asked. Pressing "share my earlier drops" sets it to zero,
+		 * which is that asking.
+		 */
+		public long sharedFrom;
+
+		/** Ids the service has taken, so nothing is sent twice and a failure can be retried. */
+		public java.util.Set<String> sent = new java.util.HashSet<>();
+
 		public boolean isCreator()
 		{
 			return creatorToken != null && !creatorToken.isEmpty();
@@ -142,10 +154,51 @@ public class GroupStore
 
 		if (memberToken != null && !memberToken.isEmpty())
 		{
+			// The moment of joining, and only the first time: a later refresh must not move the line and
+			// quietly un-share what has already gone.
+			if (existing.memberToken == null)
+			{
+				existing.sharedFrom = System.currentTimeMillis();
+			}
+
 			existing.memberToken = memberToken;
 		}
 
 		save();
+	}
+
+	/** Records that these drops have landed, so they are not sent again. */
+	public void markSent(String code, java.util.Collection<String> ids)
+	{
+		Membership membership = find(code);
+		if (membership == null)
+		{
+			return;
+		}
+
+		if (membership.sent == null)
+		{
+			membership.sent = new java.util.HashSet<>();
+		}
+
+		membership.sent.addAll(ids);
+		save();
+	}
+
+	/**
+	 * Shares everything already recorded with this group, from here on.
+	 * <p>
+	 * The deliberate act the join screen promises: nothing you already have goes anywhere until you
+	 * press the button.
+	 */
+	public void shareEverything(String code)
+	{
+		Membership membership = find(code);
+		if (membership != null)
+		{
+			membership.sharedFrom = 0;
+			save();
+		}
 	}
 
 	public void remove(String code)

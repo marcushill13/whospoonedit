@@ -12,6 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Spoon
 {
+	/**
+	 * Made here and kept for good, so the service can tell a resend from a second drop. Without it a
+	 * batch sent twice after a timeout would count twice.
+	 */
+	private String id = java.util.UUID.randomUUID().toString();
+
 	private String itemName = "";
 	private int itemId;
 
