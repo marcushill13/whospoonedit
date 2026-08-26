@@ -109,6 +109,24 @@ async function route(request, env)
 		return withCors(await importFromDiscord(importPath[1].toUpperCase(), request, env));
 	}
 
+	const claims = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/claims$/);
+	if (claims && request.method === 'POST')
+	{
+		return withCors(await submitClaim(claims[1].toUpperCase(), request, env));
+	}
+
+	if (claims && request.method === 'GET')
+	{
+		return withCors(await listClaims(claims[1].toUpperCase(), request, env));
+	}
+
+	const vote = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/claims\/([^/]+)\/vote$/);
+	if (vote && request.method === 'POST')
+	{
+		return withCors(await voteOnClaim(
+			vote[1].toUpperCase(), decodeURIComponent(vote[2]), request, env));
+	}
+
 	const search = path.match(/^\/v1\/groups\/([A-Za-z0-9]+)\/search$/);
 	if (search && request.method === 'GET')
 	{
@@ -627,6 +645,250 @@ async function registerSlashCommand(request, env)
 
 	await registerCommands(env.DISCORD_APPLICATION_ID, env.DISCORD_BOT_TOKEN);
 	return json({ registered: true, invite: inviteUrl(env.DISCORD_APPLICATION_ID) });
+}
+
+/**
+ * Puts a drop to the group that the plugin never saw.
+ *
+ * Everything from before a group installed this is in that position: real, unrecorded, and worth
+ * having on the board. Taking somebody's word for it would make the leaderboard worthless, and
+ * refusing it outright would throw away most of everyone's collection log. So it goes to the people
+ * who would know.
+ */
+async function submitClaim(code, request, env)
+{
+	const member = await memberFor(code, request, env);
+	if (!member)
+	{
+		return json({ error: 'Join the group before claiming anything' }, 403);
+	}
+
+	const body = await readJson(request);
+	const itemName = String(body?.itemName ?? '').trim();
+	if (!itemName)
+	{
+		return json({ error: 'Which item?' }, 400);
+	}
+
+	const already = await env.DB.prepare(
+		'SELECT id FROM drops WHERE group_code = ? AND rsn = ? AND item_name = ? COLLATE NOCASE')
+		.bind(code, member.rsn, itemName)
+		.first();
+
+	if (already)
+	{
+		return json({ error: 'That is already on the board for you' }, 409);
+	}
+
+	const waiting = await env.DB.prepare(
+		"SELECT id FROM claims WHERE group_code = ? AND rsn = ? AND item_name = ? COLLATE NOCASE"
+		+ " AND status = 'pending'")
+		.bind(code, member.rsn, itemName)
+		.first();
+
+	if (waiting)
+	{
+		return json({ error: 'You have claimed that already, and it is still being voted on' }, 409);
+	}
+
+	const killCount = Number.isFinite(body?.killCount) && body.killCount > 0
+		? Math.trunc(body.killCount)
+		: null;
+
+	const denominator = Number.isFinite(body?.denominator) && body.denominator > 0
+		? body.denominator
+		: null;
+
+	await env.DB.prepare(
+		'INSERT INTO claims'
+		+ ' (id, group_code, rsn, item_name, item_id, source, kill_count, denominator, evidence,'
+		+ '  note, created_at)'
+		+ ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+		.bind(
+			randomToken().slice(0, 16),
+			code,
+			member.rsn,
+			itemName.slice(0, 120),
+			Number.isFinite(body?.itemId) ? Math.trunc(body.itemId) : -1,
+			body?.source ? String(body.source).slice(0, 80) : null,
+			killCount,
+			denominator === null ? null : Math.round(denominator * RATE_SCALE),
+			body?.evidence ? String(body.evidence).slice(0, 500) : null,
+			body?.note ? String(body.note).slice(0, 300) : null,
+			Date.now())
+		.run();
+
+	return json({ claims: await claimsFor(code, member.rsn, env) }, 201);
+}
+
+/** Everything still being voted on, and how this member has voted on each. */
+async function listClaims(code, request, env)
+{
+	const member = await memberFor(code, request, env);
+	if (!member)
+	{
+		return json({ error: 'Join the group first' }, 403);
+	}
+
+	return json({ claims: await claimsFor(code, member.rsn, env) });
+}
+
+async function claimsFor(code, rsn, env)
+{
+	const rows = await env.DB.prepare(
+		'SELECT c.id, c.rsn, c.item_name AS itemName, c.item_id AS itemId, c.source,'
+		+ ' c.kill_count AS killCount, c.denominator, c.evidence, c.note,'
+		+ ' c.created_at AS createdAt,'
+		+ ' COALESCE(SUM(CASE WHEN v.approve = 1 THEN 1 ELSE 0 END), 0) AS approvals,'
+		+ ' COALESCE(SUM(CASE WHEN v.approve = 0 THEN 1 ELSE 0 END), 0) AS rejections,'
+		+ ' MAX(CASE WHEN v.rsn = ? THEN v.approve ELSE NULL END) AS yourVote'
+		+ ' FROM claims c LEFT JOIN votes v ON v.claim_id = c.id'
+		+ " WHERE c.group_code = ? AND c.status = 'pending'"
+		+ ' GROUP BY c.id ORDER BY c.created_at')
+		.bind(rsn, code)
+		.all();
+
+	const needed = await votesNeeded(code, env);
+
+	return (rows.results ?? []).map(row => ({
+		id: row.id,
+		rsn: row.rsn,
+		itemName: row.itemName,
+		itemId: row.itemId,
+		source: row.source,
+		killCount: row.killCount,
+		denominator: row.denominator === null ? null : row.denominator / RATE_SCALE,
+		evidence: row.evidence,
+		note: row.note,
+		createdAt: row.createdAt,
+		approvals: row.approvals,
+		rejections: row.rejections,
+		yours: row.rsn === rsn,
+		yourVote: row.yourVote === null ? null : row.yourVote === 1,
+		needed
+	}));
+}
+
+/**
+ * How many yes votes carries a claim: more than half of everybody else.
+ *
+ * The claimant is left out of their own count, which is the whole point of putting it to the group.
+ * A group of one has nobody to ask, so nothing can be carried until somebody joins — which is the
+ * honest answer rather than waving it through.
+ */
+async function votesNeeded(code, env)
+{
+	const row = await env.DB.prepare('SELECT COUNT(*) AS members FROM members WHERE group_code = ?')
+		.bind(code)
+		.first();
+
+	const others = Math.max(0, (row?.members ?? 1) - 1);
+	return Math.floor(others / 2) + 1;
+}
+
+/**
+ * A yes or a no from somebody who is not the claimant.
+ *
+ * Settled the moment it can be. A claim with the votes should not wait on stragglers, and one that
+ * can no longer reach the threshold should not sit there pretending it might.
+ */
+async function voteOnClaim(code, claimId, request, env)
+{
+	const member = await memberFor(code, request, env);
+	if (!member)
+	{
+		return json({ error: 'Join the group before voting' }, 403);
+	}
+
+	const claim = await env.DB.prepare(
+		"SELECT * FROM claims WHERE id = ? AND group_code = ? AND status = 'pending'")
+		.bind(claimId, code)
+		.first();
+
+	if (!claim)
+	{
+		return json({ error: 'No claim waiting with that id' }, 404);
+	}
+
+	if (claim.rsn === member.rsn)
+	{
+		return json({ error: 'You cannot vote on your own claim' }, 403);
+	}
+
+	const body = await readJson(request);
+
+	// Changing your mind replaces your vote rather than adding a second voice.
+	await env.DB.prepare(
+		'INSERT OR REPLACE INTO votes (claim_id, rsn, approve, voted_at) VALUES (?, ?, ?, ?)')
+		.bind(claimId, member.rsn, body?.approve ? 1 : 0, Date.now())
+		.run();
+
+	const tally = await env.DB.prepare(
+		'SELECT COALESCE(SUM(CASE WHEN approve = 1 THEN 1 ELSE 0 END), 0) AS approvals,'
+		+ ' COALESCE(SUM(CASE WHEN approve = 0 THEN 1 ELSE 0 END), 0) AS rejections'
+		+ ' FROM votes WHERE claim_id = ?')
+		.bind(claimId)
+		.first();
+
+	const needed = await votesNeeded(code, env);
+
+	const memberRow = await env.DB.prepare(
+		'SELECT COUNT(*) AS members FROM members WHERE group_code = ?')
+		.bind(code)
+		.first();
+
+	const others = Math.max(0, (memberRow?.members ?? 1) - 1);
+
+	if ((tally?.approvals ?? 0) >= needed)
+	{
+		await acceptClaim(claim, env);
+		return json({ settled: 'accepted', leaderboard: await leaderboardFor(code, env) });
+	}
+
+	// Once enough people have said no, the yeses still to come cannot reach the threshold.
+	if (others - (tally?.rejections ?? 0) < needed)
+	{
+		await env.DB.prepare(
+			"UPDATE claims SET status = 'rejected', settled_at = ? WHERE id = ?")
+			.bind(Date.now(), claimId)
+			.run();
+
+		return json({ settled: 'rejected' });
+	}
+
+	return json({ settled: null, claims: await claimsFor(code, member.rsn, env) });
+}
+
+/** Turns a carried claim into an ordinary drop, marked as claimed for ever after. */
+async function acceptClaim(claim, env)
+{
+	const now = Date.now();
+	const denominator = claim.denominator === null ? null : claim.denominator / RATE_SCALE;
+
+	await env.DB.batch([
+		env.DB.prepare(
+			'INSERT OR IGNORE INTO drops'
+			+ ' (id, group_code, rsn, item_name, item_id, source, kill_count, denominator, share,'
+			+ '  obtained_at, recorded_at, claimed)'
+			+ ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)')
+			.bind(
+				'claim-' + claim.id,
+				claim.group_code,
+				claim.rsn,
+				claim.item_name,
+				claim.item_id,
+				claim.source,
+				claim.kill_count,
+				claim.denominator,
+				shareOf(denominator, claim.kill_count),
+				claim.created_at,
+				now),
+
+		env.DB.prepare("UPDATE claims SET status = 'accepted', settled_at = ? WHERE id = ?")
+			.bind(now, claim.id)
+	]);
+
+	await refreshTotals(claim.group_code, claim.rsn, env);
 }
 
 async function memberFor(code, request, env)

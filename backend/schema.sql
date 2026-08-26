@@ -80,3 +80,52 @@ CREATE INDEX IF NOT EXISTS drops_by_group ON drops (group_code, rsn);
 
 -- The "who spooned it" search: every holder of one item across a group, luckiest first.
 CREATE INDEX IF NOT EXISTS drops_by_item ON drops (group_code, item_name);
+
+-- A drop somebody says they got, which the plugin never saw.
+--
+-- Everything from before a group installed this is in this position: real, unrecorded, and worth
+-- having on the board. The answer is not to take somebody's word for it and not to refuse it either,
+-- but to let the people who would know decide. A claim is put to the rest of the group and needs more
+-- than half of them behind it.
+--
+-- Accepted claims become ordinary drops, marked as claimed wherever they appear. A total that was
+-- voted in should never be mistaken for one that was watched happening.
+CREATE TABLE IF NOT EXISTS claims (
+	id           TEXT PRIMARY KEY,
+
+	group_code   TEXT NOT NULL REFERENCES groups(code) ON DELETE CASCADE,
+
+	-- Who says they got it. Taken from the token, never from the request.
+	rsn          TEXT NOT NULL,
+
+	item_name    TEXT NOT NULL,
+	item_id      INTEGER NOT NULL DEFAULT -1,
+	source       TEXT,
+	kill_count   INTEGER,
+	denominator  INTEGER,
+
+	-- A link to a screenshot, if they have one. Kept as a link rather than a picture: the drop already
+	-- happened, so there is nothing to capture, and storing other people's images means deciding how
+	-- long to keep them and who may see them.
+	evidence     TEXT,
+	note         TEXT,
+
+	created_at   INTEGER NOT NULL,
+	settled_at   INTEGER,
+
+	-- pending, accepted or rejected.
+	status       TEXT NOT NULL DEFAULT 'pending'
+);
+
+CREATE INDEX IF NOT EXISTS claims_by_group ON claims (group_code, status);
+
+CREATE TABLE IF NOT EXISTS votes (
+	claim_id TEXT NOT NULL REFERENCES claims(id) ON DELETE CASCADE,
+	rsn      TEXT NOT NULL,
+
+	-- 1 for yes, 0 for no. Changing your mind overwrites rather than adding a second voice.
+	approve  INTEGER NOT NULL,
+	voted_at INTEGER NOT NULL,
+
+	PRIMARY KEY (claim_id, rsn)
+);
