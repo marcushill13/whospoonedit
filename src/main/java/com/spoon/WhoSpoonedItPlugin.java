@@ -262,7 +262,7 @@ public class WhoSpoonedItPlugin extends Plugin
 					snapshot.getLeaderboard(),
 					localPlayerName(),
 					creator,
-					medals::forPlace,
+					medals::label,
 					query -> search(code, query),
 					panel::showList,
 					() -> openGroup(code),
@@ -312,7 +312,7 @@ public class WhoSpoonedItPlugin extends Plugin
 					return;
 				}
 
-				asked.showHolders(query.trim(), result.getValue(), medals::forPlace);
+				asked.showHolders(query.trim(), result.getValue(), medals::label);
 			});
 		});
 	}

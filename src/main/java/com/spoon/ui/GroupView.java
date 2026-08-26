@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,8 +33,25 @@ public class GroupView extends JPanel
 
 	private final JPanel searchResults = new JPanel();
 
+	/** Held so the code block can be opened and shut without rebuilding the screen. */
+	private final JPanel codeHolder = new JPanel();
+
 	/**
-	 * @param medal     the game's own wooden spoon, already tinted, or null if it could not be loaded
+	 * Shut to begin with, every time.
+	 * <p>
+	 * The code, the member count and a delete button are wanted about once — when the group is made
+	 * and the code goes into Discord. After that they are a large noisy block sitting above the thing
+	 * everyone actually opened this for.
+	 */
+	private boolean codeOpen;
+
+	private Group group;
+	private boolean creator;
+	private Runnable onLeave;
+
+	/**
+	 * @param medal     builds a label carrying the spoon for a place; it fills itself once the game's
+	 *                  sprite has loaded
 	 * @param onSearch  given what was typed; results come back through {@link #showHolders}
 	 */
 	public GroupView(
@@ -43,7 +59,7 @@ public class GroupView extends JPanel
 		List<Standing> leaderboard,
 		String yourName,
 		boolean creator,
-		java.util.function.IntFunction<ImageIcon> medal,
+		java.util.function.IntFunction<JLabel> medal,
 		Consumer<String> onSearch,
 		Runnable onBack,
 		Runnable onRefresh,
@@ -63,7 +79,15 @@ public class GroupView extends JPanel
 		body.add(Header.build(group.getName()));
 		body.add(Cards.gap(10));
 
-		body.add(codeCard(group, creator, onLeave));
+		this.group = group;
+		this.creator = creator;
+		this.onLeave = onLeave;
+
+		codeHolder.setLayout(new BoxLayout(codeHolder, BoxLayout.Y_AXIS));
+		codeHolder.setBackground(Theme.BACKGROUND);
+		codeHolder.setAlignmentX(Component.LEFT_ALIGNMENT);
+		renderCode();
+		body.add(codeHolder);
 
 		body.add(Cards.gap(14));
 		body.add(Cards.sectionLabel("Spooniest in the group"));
@@ -105,12 +129,61 @@ public class GroupView extends JPanel
 		return row;
 	}
 
+	/** Fills {@link #codeHolder}, open or shut. */
+	private void renderCode()
+	{
+		codeHolder.removeAll();
+		codeHolder.add(codeToggle());
+
+		if (codeOpen)
+		{
+			codeHolder.add(Cards.gap(3));
+			codeHolder.add(codeCard());
+		}
+
+		codeHolder.revalidate();
+		codeHolder.repaint();
+	}
+
+	/** The one slim row that is always there, and the whole block when it is shut. */
+	private JPanel codeToggle()
+	{
+		JPanel row = new JPanel(new BorderLayout(4, 0));
+		row.setBackground(Theme.CARD);
+		row.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+		row.setAlignmentX(Component.LEFT_ALIGNMENT);
+		row.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+
+		JLabel label = new JLabel((codeOpen ? "− " : "+ ")
+			+ (creator ? "Your group code" : "Group code"));
+		label.setFont(Theme.body());
+		label.setForeground(Theme.TEXT_MUTED);
+		row.add(label, BorderLayout.CENTER);
+
+		JLabel members = new JLabel(group.getMembers()
+			+ (group.getMembers() == 1 ? " member" : " members"));
+		members.setFont(Theme.body());
+		members.setForeground(Theme.TEXT_MUTED);
+		row.add(members, BorderLayout.EAST);
+
+		row.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent event)
+			{
+				codeOpen = !codeOpen;
+				renderCode();
+			}
+		});
+
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		return row;
+	}
+
 	/** The code, shown large — it is what gets pasted into Discord and read back by hand. */
-	private JPanel codeCard(Group group, boolean creator, Runnable onLeave)
+	private JPanel codeCard()
 	{
 		JPanel card = Cards.card();
-
-		card.add(Cards.sectionLabel(creator ? "Your group code" : "Group code"));
 
 		JLabel code = new JLabel(group.getCode());
 		code.setFont(FontManager.getRunescapeBoldFont().deriveFont(Font.BOLD, 18f));
@@ -119,9 +192,7 @@ public class GroupView extends JPanel
 		card.add(code);
 
 		card.add(Cards.gap(2));
-		card.add(Cards.muted(group.getMembers()
-			+ (group.getMembers() == 1 ? " member" : " members")
-			+ " · made by " + group.getCreatorRsn()));
+		card.add(Cards.muted("Share this so people can join. Made by " + group.getCreatorRsn() + "."));
 
 		card.add(Cards.gap(6));
 		JButton leave = Cards.button(creator ? "Delete group" : "Leave group");
@@ -134,7 +205,7 @@ public class GroupView extends JPanel
 	}
 
 	private JPanel leaderboardList(
-		List<Standing> leaderboard, String yourName, java.util.function.IntFunction<ImageIcon> medal)
+		List<Standing> leaderboard, String yourName, java.util.function.IntFunction<JLabel> medal)
 	{
 		JPanel list = new JPanel();
 		list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
@@ -157,7 +228,7 @@ public class GroupView extends JPanel
 	}
 
 	private JPanel standingRow(
-		Standing standing, String yourName, java.util.function.IntFunction<ImageIcon> medal)
+		Standing standing, String yourName, java.util.function.IntFunction<JLabel> medal)
 	{
 		boolean you = standing.getRsn().equalsIgnoreCase(yourName == null ? "" : yourName);
 
@@ -168,10 +239,9 @@ public class GroupView extends JPanel
 
 		// The top three get a spoon; everyone else gets their number. Fourth place being plainly not a
 		// medal is most of the joke.
-		ImageIcon icon = standing.getPlace() <= 3 ? medal.apply(standing.getPlace()) : null;
-		if (icon != null)
+		if (standing.getPlace() <= 3)
 		{
-			row.add(new JLabel(icon), BorderLayout.WEST);
+			row.add(medal.apply(standing.getPlace()), BorderLayout.WEST);
 		}
 		else
 		{
@@ -230,7 +300,7 @@ public class GroupView extends JPanel
 	 * Fills in the results of a search: everyone who has that item, luckiest first.
 	 */
 	public void showHolders(
-		String itemName, List<Holder> holders, java.util.function.IntFunction<ImageIcon> medal)
+		String itemName, List<Holder> holders, java.util.function.IntFunction<JLabel> medal)
 	{
 		searchResults.removeAll();
 
@@ -263,7 +333,7 @@ public class GroupView extends JPanel
 		searchResults.repaint();
 	}
 
-	private JPanel holderRow(Holder holder, java.util.function.IntFunction<ImageIcon> medal)
+	private JPanel holderRow(Holder holder, java.util.function.IntFunction<JLabel> medal)
 	{
 		JPanel row = new JPanel(new BorderLayout(6, 0));
 		row.setBackground(Theme.CARD);
@@ -272,13 +342,9 @@ public class GroupView extends JPanel
 
 		// Only the scored get medals here. Somebody who has the item but never had a kill count
 		// recorded is not first, and is not last either — they are simply not in the running.
-		ImageIcon icon = holder.getShare() != null && holder.getPlace() <= 3
-			? medal.apply(holder.getPlace())
-			: null;
-
-		if (icon != null)
+		if (holder.getShare() != null && holder.getPlace() <= 3)
 		{
-			row.add(new JLabel(icon), BorderLayout.WEST);
+			row.add(medal.apply(holder.getPlace()), BorderLayout.WEST);
 		}
 
 		JPanel text = new JPanel();

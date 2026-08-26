@@ -19,6 +19,16 @@ public final class Header
 {
 	private static final int LOGO = 34;
 
+	/**
+	 * What the words may take up.
+	 * <p>
+	 * A sidebar is a fixed 225 wide and a JLabel asks for however much room its text needs on one
+	 * line, so an unwrapped strapline quietly widens the whole plugin until it shoves RuneLite's own
+	 * icons off the screen. That is exactly what happened: the group screen fitted because its
+	 * strapline was one short word, and the front screen did not because its was a sentence.
+	 */
+	private static final int WORDS_WIDTH = net.runelite.client.ui.PluginPanel.PANEL_WIDTH - LOGO - 30;
+
 	private Header()
 	{
 	}
@@ -41,7 +51,9 @@ public final class Header
 
 		if (strapline != null && !strapline.isEmpty())
 		{
-			JLabel under = new JLabel(strapline);
+			// Wrapped rather than trusted to be short, so no caller can widen the panel by accident.
+			JLabel under = new JLabel(
+				"<html><body style='width:" + WORDS_WIDTH + "px'>" + strapline + "</body></html>");
 			under.setFont(Theme.body());
 			under.setForeground(Theme.TEXT_MUTED);
 			under.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -54,7 +66,9 @@ public final class Header
 		logo.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
 		row.add(logo, BorderLayout.EAST);
 
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		int height = row.getPreferredSize().height;
+		row.setPreferredSize(new Dimension(net.runelite.client.ui.PluginPanel.PANEL_WIDTH, height));
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
 		return row;
 	}
 }

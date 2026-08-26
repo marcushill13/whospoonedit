@@ -39,8 +39,7 @@ public class CreateGroupPanel extends JPanel
 		add(name);
 
 		add(Cards.gap(6));
-		add(Cards.muted("What your mates will see. \"THE Tards\", \"GIM Buddies\", whatever you call "
-			+ "yourselves."));
+		add(Cards.muted("What your mates will see."));
 
 		add(Cards.gap(14));
 		add(new ActionTile("Create", () ->

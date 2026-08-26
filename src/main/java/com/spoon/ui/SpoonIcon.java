@@ -30,8 +30,9 @@ public final class SpoonIcon
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = Theme.smooth(image.createGraphics());
 
-		// Tilted, because a spoon standing to attention looks like a lollipop.
-		graphics.rotate(Math.toRadians(-30), size / 2.0, size / 2.0);
+		// Tilted, because a spoon standing to attention looks like a lollipop. Leaning right, so the
+		// bowl points away from the title rather than back into it.
+		graphics.rotate(Math.toRadians(30), size / 2.0, size / 2.0);
 
 		// A narrow, tall bowl. Anything close to a circle reads as a magnifying glass, which is what
 		// the first attempt at this looked like.
