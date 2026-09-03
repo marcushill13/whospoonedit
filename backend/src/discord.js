@@ -110,11 +110,20 @@ export async function readChannelChunk(channelId, botToken,
 
 		if (response.status === 429)
 		{
-			// Rate limited. Waiting the time Discord asks for is cheaper than being cut off, and the
-			// wait is spent from this chunk's budget rather than being free: it is the answer arriving
-			// late that the plugin gives up on, whatever the reason for the delay.
+			// Rate limited. Waiting the time Discord asks for is cheaper than being cut off, but only
+			// while somebody is still waiting for this answer. The clock has to be read here as well as
+			// at the bottom of the loop, because carrying on from here skips it: a run of these would
+			// otherwise sit out a full minute inside a request that was given ten seconds, and hand back
+			// nothing at the end of it.
 			const retry = Number(response.headers.get('retry-after') ?? '1');
-			await new Promise(resolve => setTimeout(resolve, Math.min(retry, 5) * 1000));
+			const left = millis - (Date.now() - startedAt);
+
+			if (left <= 0)
+			{
+				break;
+			}
+
+			await new Promise(resolve => setTimeout(resolve, Math.min(retry * 1000, 5000, left)));
 			continue;
 		}
 
