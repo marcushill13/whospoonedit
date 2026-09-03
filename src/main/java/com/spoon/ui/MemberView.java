@@ -36,6 +36,20 @@ public class MemberView extends JPanel
 
 	private String sort;
 
+	/**
+	 * The drops that could be scored, and the drops that could not.
+	 * <p>
+	 * Kept apart because they answer different questions. A scored drop says how lucky somebody was; an
+	 * unscored one says only that they have the thing, because nothing knows the kill count it came on
+	 * or the odds of it. Mixed together the second sort drowns the first, and a list of dashes is what
+	 * people see instead of the run of numbers they came for.
+	 */
+	private List<Holder> scored = new java.util.ArrayList<>();
+	private List<Holder> unscored = new java.util.ArrayList<>();
+
+	/** Whether the unscored are showing. Shut again whenever a fresh list arrives. */
+	private boolean unscoredOpen;
+
 	public MemberView(
 		String rsn,
 		int spoons,
@@ -133,29 +147,90 @@ public class MemberView extends JPanel
 
 	public void show(List<Holder> drops)
 	{
+		scored = new java.util.ArrayList<>();
+		unscored = new java.util.ArrayList<>();
+
+		for (Holder drop : drops)
+		{
+			(drop.getShare() == null ? unscored : scored).add(drop);
+		}
+
+		// A fresh list is a fresh question, so they go back in the drawer.
+		unscoredOpen = false;
+		rebuild();
+	}
+
+	public void showMessage(String message)
+	{
+		scored = new java.util.ArrayList<>();
+		unscored = new java.util.ArrayList<>();
+
+		list.removeAll();
+		list.add(Cards.muted(message));
+		list.revalidate();
+		list.repaint();
+	}
+
+	private void rebuild()
+	{
 		list.removeAll();
 
-		if (drops.isEmpty())
+		if (scored.isEmpty() && unscored.isEmpty())
 		{
 			list.add(Cards.muted(rsn + " has nothing recorded in this group yet."));
 		}
 
-		for (Holder drop : drops)
+		for (Holder drop : scored)
 		{
 			list.add(row(drop));
 			list.add(Cards.gap(3));
+		}
+
+		if (!unscored.isEmpty())
+		{
+			list.add(Cards.gap(5));
+			list.add(drawer());
+
+			if (unscoredOpen)
+			{
+				list.add(Cards.gap(4));
+				list.add(Cards.muted("Nothing knows the kill count these came on, or the odds of them. "
+					+ "They are kept and shown, and never ranked."));
+				list.add(Cards.gap(4));
+
+				for (Holder drop : unscored)
+				{
+					list.add(row(drop));
+					list.add(Cards.gap(3));
+				}
+			}
 		}
 
 		list.revalidate();
 		list.repaint();
 	}
 
-	public void showMessage(String message)
+	/**
+	 * The drops nothing could score, folded away under the rest.
+	 * <p>
+	 * Out of the way rather than gone. They are real drops and somebody looking for one wants to find
+	 * it, but a column of dashes above the numbers is the thing people were complaining about, and the
+	 * count on the button says how many are down there without anybody having to open it.
+	 */
+	private JButton drawer()
 	{
-		list.removeAll();
-		list.add(Cards.muted(message));
-		list.revalidate();
-		list.repaint();
+		JButton toggle = Cards.button(
+			(unscoredOpen ? "Hide " : "Show ") + unscored.size() + " not scored");
+
+		toggle.setAlignmentX(Component.LEFT_ALIGNMENT);
+		toggle.setForeground(Theme.TEXT_MUTED);
+		toggle.addActionListener(event ->
+		{
+			unscoredOpen = !unscoredOpen;
+			rebuild();
+		});
+
+		return toggle;
 	}
 
 	private JPanel row(Holder drop)

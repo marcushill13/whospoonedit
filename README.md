@@ -50,7 +50,8 @@ and nothing exposes how many logs you have chopped. They are recorded and left u
 given a made up number.
 
 Anything else without a kill count is kept and shown, but never ranked. A drop with nothing to judge
-it against is not the same as an unlucky one.
+it against is not the same as an unlucky one. In somebody's list those sit under a **Show n not
+scored** button at the bottom, out of the way of the numbers rather than mixed in among them.
 
 Where a Dink message states a rarity, that figure is used, so a group that has been reading those
 numbers for months is not told something different about a drop it has already argued about. Where it
