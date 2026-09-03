@@ -634,9 +634,13 @@ async function importFromDiscord(code, request, env)
 		// what the next press brings in. The exception is a stretch holding nothing for this
 		// group, which is stepped over rather than offered again, since there is nothing in it
 		// to keep and a plugin that presses once per chunk would otherwise never get past it.
-		if (!fromExport && matched.length === 0 && !chunk.done)
+		//
+		// The end of the channel counts as such a stretch, and leaving it out was a way to get
+		// stuck: the plugin says "nothing to bring in" and never commits, so nothing ever cleared
+		// the place, and every press after that read from the oldest end and found nothing there.
+		if (!fromExport && matched.length === 0)
 		{
-			await rememberPlace(code, { paged, startingOut, chunk, messages }, env);
+			await rememberPlace(code, { paged, startingOut, chunk, messages, dryRun: true }, env);
 		}
 
 		return json({ ...summary, imported: 0, dryRun: true, cursor: chunk.before, done: chunk.done });
@@ -797,11 +801,25 @@ async function refreshTotalsFor(code, names, env)
  * us. By the end we are years down the channel, where the newest thing in the last chunk read is the
  * oldest thing in the channel.
  */
-async function rememberPlace(code, { paged, startingOut, chunk, messages }, env)
+export async function rememberPlace(code, { paged, startingOut, chunk, messages, dryRun }, env)
 {
 	const newest = startingOut && messages.length > 0
 		? Date.parse(messages[0].timestamp ?? '') || null
 		: null;
+
+	// A look that reaches the end has finished nothing. It clears the place so the next press starts
+	// afresh instead of reading the oldest end for ever, and leaves every mark of a completed import
+	// alone: saying a channel has been read, and scored against this data, is the commit's to say. A
+	// few presses answered with No would otherwise quietly use up a re-read that never happened.
+	if (chunk.done && dryRun)
+	{
+		await env.DB.prepare(
+			'UPDATE groups SET discord_cursor = NULL, discord_sweep_newest = NULL WHERE code = ?')
+			.bind(code)
+			.run();
+
+		return;
+	}
 
 	if (chunk.done)
 	{
