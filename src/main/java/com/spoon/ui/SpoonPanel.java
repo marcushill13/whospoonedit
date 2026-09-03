@@ -327,7 +327,7 @@ public class SpoonPanel extends PluginPanel
 		luck.setForeground(colourFor(spoon.getShare()));
 		row.add(luck, BorderLayout.EAST);
 
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		Cards.fitRow(row);
 		return row;
 	}
 

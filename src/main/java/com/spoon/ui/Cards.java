@@ -83,6 +83,36 @@ final class Cards
 	 */
 	static final int NAME_WRAP = 86;
 
+	/**
+	 * And what is left for the line under it.
+	 *
+	 * Was a hundred, which overran the row on its own: a hundred for this, eighty-six for the name
+	 * above it and the widest of the two is what the middle column asks for, leaving too little for the
+	 * luck figure at the end. That figure is the thing people are reading the row for, so it is the
+	 * last thing that should be pushed off the side of the panel.
+	 */
+	static final int DETAIL_WRAP = NAME_WRAP;
+
+	/**
+	 * Holds a row to the width there actually is.
+	 *
+	 * {@link #ROW_WIDTH} was worked out, written down, and never applied to anything, so it described
+	 * a row rather than constraining one. A row whose contents wanted more than the sidebar has took
+	 * it: the panel cannot scroll sideways, so the right-hand end simply went under the scrollbar and
+	 * off the edge, taking the luck figure with it.
+	 *
+	 * The minimum is left at nothing so a narrower sidebar shrinks the row rather than overflowing it
+	 * again, which is the same failure wearing a different width.
+	 */
+	static void fitRow(JPanel row)
+	{
+		int height = row.getPreferredSize().height;
+
+		row.setPreferredSize(new Dimension(ROW_WIDTH, height));
+		row.setMaximumSize(new Dimension(ROW_WIDTH, height));
+		row.setMinimumSize(new Dimension(0, height));
+	}
+
 	private Cards()
 	{
 	}
@@ -223,7 +253,7 @@ final class Cards
 
 	static JLabel mutedInRow(String text)
 	{
-		JLabel label = new JLabel("<html><body style='width:100px'>" + escape(text) + "</body></html>");
+		JLabel label = new JLabel(wrap(text, DETAIL_WRAP));
 		label.setFont(FontManager.getRunescapeSmallFont());
 		label.setForeground(MUTED_TEXT);
 		label.setAlignmentX(Component.LEFT_ALIGNMENT);

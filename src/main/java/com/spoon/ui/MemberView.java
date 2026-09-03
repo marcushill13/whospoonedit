@@ -288,7 +288,7 @@ public class MemberView extends JPanel
 		luck.setForeground(drop.getShare() == null ? Theme.TEXT_MUTED : colourFor(drop.getShare()));
 		row.add(luck, BorderLayout.EAST);
 
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		Cards.fitRow(row);
 		return row;
 	}
 

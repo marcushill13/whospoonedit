@@ -454,7 +454,7 @@ public class GroupView extends JPanel
 			}
 		});
 
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		Cards.fitRow(row);
 		return row;
 	}
 
@@ -572,7 +572,7 @@ public class GroupView extends JPanel
 		luck.setForeground(holder.getShare() == null ? Theme.TEXT_MUTED : luckColour(holder.getShare()));
 		row.add(luck, BorderLayout.EAST);
 
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
+		Cards.fitRow(row);
 		return row;
 	}
 
