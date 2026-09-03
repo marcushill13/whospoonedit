@@ -30,14 +30,30 @@ const OUT = 'src/main/resources/com/spoon/extra-drops.json';
 const MISSING = [
 	{ page: 'Grotesque Guardians', as: ['Grotesque Guardians', 'Dusk', 'Dawn'] },
 	{ page: 'The Hueycoatl', as: ['The Hueycoatl', 'Hueycoatl'] },
+
 	// The Wintertodt page states no drops of its own: what it gives comes out of a supply crate, and
-	// the crate has the table.
+	// the crate has the table. Its rates move with points and level, so it may state none at all.
 	{ page: 'Supply crate', as: ['Wintertodt', 'Supply crate'] },
-	{ page: 'Tempoross', as: ['Tempoross', 'Reward pool'] }
+	{ page: 'Tempoross', as: ['Tempoross', 'Reward pool'] },
+
+	// Named after the chest rather than the fight, which is what the game calls the thing that gave
+	// it, and so what Dink writes.
+	{ page: 'Lunar Chest', as: ['Lunar Chest', 'Moons of Peril', 'Blood Moon', 'Blue Moon', 'Eclipse Moon'] },
+
+	{ page: 'The Gauntlet', as: ['The Gauntlet', 'Gauntlet', 'Crystalline Hunllef'] },
+	{ page: 'Corrupted Gauntlet', as: ['Corrupted Gauntlet', 'Corrupted Hunllef'] },
+	{ page: 'Fortis Colosseum', as: ['Fortis Colosseum', 'Sol Heredit'] },
+	{ page: 'The Royal Titans', as: ['The Royal Titans', 'Royal Titans', 'Branda the Fire Queen', 'Eldric the Ice King'] },
+
+	// The raids. Their unique tables are stated per raid rather than per kill, and the odds move with
+	// points, so these may read nothing. Worth asking for rather than assuming.
+	{ page: 'Chambers of Xeric', as: ['Chambers of Xeric'] },
+	{ page: 'Theatre of Blood', as: ['Theatre of Blood'] },
+	{ page: 'Tombs of Amascut', as: ['Tombs of Amascut'] }
 ];
 
-/** Anything commoner than this is not what anybody means by a spoon. */
-const FLOOR = 12;
+/** Kept however common: a guaranteed drop is a collection log slot like any other. */
+const FLOOR = 1;
 
 /** "drops Black tourmaline core with rarity 2 × 1/1,000 in quantity 1" */
 const ROW = /drops (.+?) with rarity (.+?) in quantity/g;

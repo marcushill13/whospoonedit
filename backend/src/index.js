@@ -570,7 +570,11 @@ async function importFromDiscord(code, request, env)
 		}
 	}
 
-	const { drops, skipped, names } = parseDinkMessages(messages);
+	const { drops, details, skipped, names } = parseDinkMessages(messages);
+
+	// Before anything is matched or scored, since a drop that borrows its source from the loot beside
+	// it can then be scored like any other.
+	fillFromLoot(drops, details);
 
 	const rows = await env.DB.prepare('SELECT rsn FROM members WHERE group_code = ?')
 		.bind(code)
@@ -753,10 +757,109 @@ export function rateFor(source, itemName)
 		return null;
 	}
 
-	const tier = clueTier(source);
-	const table = rates[tier ? 'clue ' + tier : spelled(source)];
+	const item = spelled(itemName);
 
-	return table?.[spelled(itemName)] ?? null;
+	for (const at of filedUnder(source))
+	{
+		const found = rates[at]?.[item];
+		if (found)
+		{
+			return found;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * The names one source might be filed under, likeliest first.
+ *
+ * Dink writes whatever the game called the thing that gave the item, which for an event is often a
+ * container with the event in brackets: "Reward pool (Tempoross)". The table knows the pool and it
+ * knows Tempoross, and neither of them is spelled like the whole string, so all three are tried.
+ *
+ * The clue tier is offered first and does not stop the rest being tried, because a tier is recognised
+ * by a word appearing anywhere in the source, and a boss whose name happens to contain one is a boss
+ * rather than a casket.
+ */
+export function* filedUnder(source)
+{
+	const tier = clueTier(source);
+	if (tier)
+	{
+		yield 'clue ' + tier;
+	}
+
+	yield spelled(source);
+
+	const brackets = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(String(source));
+	if (brackets)
+	{
+		yield spelled(brackets[2]);
+		yield spelled(brackets[1]);
+	}
+}
+
+/** How far apart a loot notification and a collection log message may be and still be one drop. */
+const SAME_DROP_MILLIS = 5 * 60 * 1000;
+
+/**
+ * Fills in what a collection log message did not say, from the loot notification beside it.
+ *
+ * Dink writes the source and the count into a collection log message only when it knows the count,
+ * and leaves both out together otherwise, which is why a drop can arrive with no details at all. The
+ * loot notification fired seconds earlier usually has all three.
+ *
+ * Matched on who, what, and when. The same item to the same player within a few minutes is the same
+ * drop; the same item to the same player a year later is a different one, and its details are not
+ * this drop's to borrow.
+ */
+export function fillFromLoot(drops, details)
+{
+	if (details.length === 0)
+	{
+		return;
+	}
+
+	for (const drop of drops)
+	{
+		if (drop.source && drop.killCount && drop.denominator)
+		{
+			continue;
+		}
+
+		let best = null;
+		let closest = SAME_DROP_MILLIS;
+
+		for (const detail of details)
+		{
+			if (detail.rsn.toLowerCase() !== drop.rsn.toLowerCase())
+			{
+				continue;
+			}
+
+			if (!detail.items.some(item => item.toLowerCase() === drop.itemName.toLowerCase()))
+			{
+				continue;
+			}
+
+			const apart = Math.abs(detail.at - drop.obtainedAt);
+			if (apart <= closest)
+			{
+				best = detail;
+				closest = apart;
+			}
+		}
+
+		if (!best)
+		{
+			continue;
+		}
+
+		drop.source = drop.source ?? best.source;
+		drop.killCount = drop.killCount ?? best.killCount;
+		drop.denominator = drop.denominator ?? best.denominator;
+	}
 }
 
 /**

@@ -57,7 +57,7 @@ test('reads the drops out of a rendered page', () =>
 	const html = `
 		<img alt="Grotesque Guardians drops Granite maul with rarity 2 × 1/250 in quantity 1">
 		<img alt="Grotesque Guardians drops Black tourmaline core with rarity 2 × 1/1,000 in quantity 1">
-		<img alt="Grotesque Guardians drops Coins with rarity 1/2 in quantity 20000">
+		<img alt="Grotesque Guardians drops Granite dust with rarity Always in quantity 30">
 	`;
 
 	const drops = readPage(html);
@@ -65,8 +65,10 @@ test('reads the drops out of a rendered page', () =>
 	assert.equal(drops.get('Granite maul'), 125.25);
 	assert.equal(drops.get('Black tourmaline core'), 500.25);
 
-	// Coins are not a spoon and are below the floor.
-	assert.equal(drops.has('Coins'), false);
+	// A guaranteed drop is kept. There was a floor here that threw them away, and Granite dust is a
+	// collection log slot: everybody has it by their first kill, which is a true thing to say about it
+	// and better than showing nothing and looking broken.
+	assert.equal(drops.get('Granite dust'), 1);
 });
 
 test('takes the likelier row when a page lists an item twice', () =>

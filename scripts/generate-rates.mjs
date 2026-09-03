@@ -37,12 +37,14 @@ const OUT = 'backend/src/rates.js';
 const ITEMS = 'https://raw.githubusercontent.com/0xNeffarion/osrsreboxed-db/master/docs/items-summary.json';
 
 /**
- * Anything commoner than this is left out.
+ * Everything is kept, however common.
  *
- * Nobody has ever been called a spoon for a herb, and two thirds of this data is drop tables full of
- * them. The rarest thing excluded is commoner than one in twelve, which no collection log slot is.
+ * There was a floor here, on the reasoning that nobody is called a spoon for a herb. It threw away
+ * collection log slots: Granite dust is a guaranteed drop, so it sat unscored and looked broken, when
+ * the honest answer is that everybody has it by their first kill. A drop nobody could be lucky to get
+ * is not a drop nothing can be said about, and the file is only a third bigger for saying it.
  */
-const FLOOR = 12;
+const FLOOR = 1;
 
 /** One spelling, so a name written in a Discord message finds a name written in a drop table. */
 const key = text => String(text ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
