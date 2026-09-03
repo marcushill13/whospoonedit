@@ -861,6 +861,17 @@ public class WhoSpoonedItPlugin extends Plugin
 				.append(" have no kill count, so they count but cannot be scored.");
 		}
 
+		if (found.getWithoutRate() > 0)
+		{
+			// Said apart from the above because it is a different hole and has a different answer: a
+			// missing kill count is gone for good, while a missing rate is a monster nothing has the
+			// odds for yet, and importing again once it does will fill it in.
+			text.append(System.lineSeparator())
+				.append(found.getWithoutRate())
+				.append(" are from something with no known drop rate, so they count but are not scored"
+					+ " yet.");
+		}
+
 		if (!found.getUnmatched().isEmpty())
 		{
 			text.append(System.lineSeparator()).append(System.lineSeparator())

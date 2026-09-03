@@ -19,6 +19,7 @@ import {
 	registerCommands,
 	verifySignature
 } from './discord.js';
+import rates from './rates.js';
 
 /** Codes people read aloud, so no O/0 or I/1. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -579,6 +580,7 @@ async function importFromDiscord(code, request, env)
 	const matched = [];
 	const unmatched = {};
 	let withoutKillCount = 0;
+	let withoutRate = 0;
 
 	for (const drop of drops)
 	{
@@ -589,12 +591,22 @@ async function importFromDiscord(code, request, env)
 			continue;
 		}
 
+		// Dink's own figure first, where it gave one, so a group that has been reading its numbers for
+		// months is not told something different about a drop it already discussed.
+		const denominator = drop.denominator ?? rateFor(drop.source, drop.itemName);
+
 		if (!drop.killCount)
 		{
 			withoutKillCount++;
 		}
+		else if (!denominator)
+		{
+			// Counted apart from the above, because they are different holes: one is a drop nothing
+			// knows the kill count of, the other a drop nothing knows the odds of.
+			withoutRate++;
+		}
 
-		matched.push({ ...drop, rsn: member });
+		matched.push({ ...drop, rsn: member, denominator });
 	}
 
 	const summary = {
@@ -602,6 +614,7 @@ async function importFromDiscord(code, request, env)
 		skipped,
 		matched: matched.length,
 		withoutKillCount,
+		withoutRate,
 		names,
 		unmatched
 	};
@@ -634,10 +647,23 @@ async function importFromDiscord(code, request, env)
 			touched.add(drop.rsn);
 
 			return env.DB.prepare(
-				'INSERT OR IGNORE INTO drops' +
+				'INSERT INTO drops' +
 				' (id, group_code, rsn, item_name, item_id, source, kill_count, denominator, share,' +
 				'  obtained_at, recorded_at, claimed)' +
-				' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)')
+				' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)' +
+
+				// A second import used to change nothing at all, which was right while the only thing
+				// it could have changed was a duplicate. It is wrong once the service learns to score
+				// something it could not score before: those drops are already on the board, unscored,
+				// and nothing would ever go back for them.
+				//
+				// So a gap is filled and a value is never overwritten. What is already known came from
+				// the drop itself or from Dink, and is not for a later pass to second-guess.
+				' ON CONFLICT(id) DO UPDATE SET' +
+				'  source = COALESCE(drops.source, excluded.source),' +
+				'  kill_count = COALESCE(drops.kill_count, excluded.kill_count),' +
+				'  denominator = COALESCE(drops.denominator, excluded.denominator),' +
+				'  share = COALESCE(drops.share, excluded.share)')
 				.bind(
 					drop.id,
 					code,
@@ -667,6 +693,59 @@ async function importFromDiscord(code, request, env)
 		done: chunk.done,
 		leaderboard: await leaderboardFor(code, env)
 	});
+}
+
+/**
+ * One spelling for a name, so one written in a Discord message finds one written in a drop table.
+ *
+ * The same function built the table, which is the only reason this works: "Hydra's claw", "Torva
+ * full helm (damaged)" and "Vet'ion" are punctuated differently by everything that writes them.
+ */
+const spelled = text => String(text ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+/**
+ * The tier a casket belongs to, from whatever the game called the thing that dropped it.
+ *
+ * Loose on purpose, the same way the plugin is: one tier arrives as "Clue Scroll (Hard)", "Reward
+ * Casket (Hard)" and "hard Treasure Trails" depending which part of the game is speaking.
+ */
+export function clueTier(source)
+{
+	const text = spelled(source);
+
+	for (const tier of ['beginner', 'easy', 'medium', 'hard', 'elite', 'master'])
+	{
+		if (text.includes(tier))
+		{
+			return tier;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * How rare a thing is, worked out here when the message that carried it did not say.
+ *
+ * Dink states a rarity in some of its notifications and not in others, and the ones without were kept
+ * and never scored, which is a drop on the board with nothing to judge it by. The plugin has never had
+ * this problem: it holds the drop data and can ask the game what an item is called. This is the same
+ * data, keyed by name, so the service can do it too.
+ *
+ * Still nothing rather than a guess when the source is unknown: a monster that is not in the data is
+ * not a monster with an average drop rate.
+ */
+export function rateFor(source, itemName)
+{
+	if (!source || !itemName)
+	{
+		return null;
+	}
+
+	const tier = clueTier(source);
+	const table = rates[tier ? 'clue ' + tier : spelled(source)];
+
+	return table?.[spelled(itemName)] ?? null;
 }
 
 /**

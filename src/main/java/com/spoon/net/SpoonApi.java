@@ -251,6 +251,7 @@ public class SpoonApi
 		total.setMatched(total.getMatched() + part.getMatched());
 		total.setImported(total.getImported() + part.getImported());
 		total.setWithoutKillCount(total.getWithoutKillCount() + part.getWithoutKillCount());
+		total.setWithoutRate(total.getWithoutRate() + part.getWithoutRate());
 		total.setDone(part.isDone());
 		total.setCursor(part.getCursor());
 
@@ -358,6 +359,9 @@ public class SpoonApi
 
 		/** Drops with no kill count recorded, which can be kept but never scored. */
 		private int withoutKillCount;
+
+		/** And drops whose kill count is known but whose odds are not, which is a different hole. */
+		private int withoutRate;
 
 		/** Names seen in the channel that are not in this group, and how many drops each had. */
 		private java.util.Map<String, Integer> unmatched = new java.util.LinkedHashMap<>();

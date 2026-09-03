@@ -42,12 +42,21 @@ been reading "Top 40% (Lucky)" for months should not be told a different number 
 
 **Clue rewards** are scored against how many caskets of that tier have been opened.
 
+**Pets** are scored like anything else, whether the plugin saw one drop or read it out of a Dink
+message afterwards.
+
 **Skilling pets are not scored.** They are rolled per action at a rate that changes with your level,
 and nothing exposes how many logs you have chopped. They are recorded and left unscored rather than
 given a made up number.
 
 Anything else without a kill count is kept and shown, but never ranked. A drop with nothing to judge
 it against is not the same as an unlucky one.
+
+Where a Dink message states a rarity, that figure is used, so a group that has been reading those
+numbers for months is not told something different about a drop it has already argued about. Where it
+states none, the rate is looked up instead, from the same data the plugin scores live drops with. A
+monster nothing has rates for leaves its drops unscored rather than guessed at, and importing again
+once the data covers it fills them in.
 
 ## Claiming older drops
 
