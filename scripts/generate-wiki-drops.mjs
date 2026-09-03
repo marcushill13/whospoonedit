@@ -28,28 +28,50 @@ const OUT = 'src/main/resources/com/spoon/extra-drops.json';
  * half the drops stay unscored, so one page is registered under every name it answers to.
  */
 const MISSING = [
-	{ page: 'Grotesque Guardians', as: ['Grotesque Guardians', 'Dusk', 'Dawn'] },
-	{ page: 'The Hueycoatl', as: ['The Hueycoatl', 'Hueycoatl'] },
+	{ pages: ['Grotesque Guardians'], as: ['Grotesque Guardians', 'Dusk', 'Dawn'] },
+	{ pages: ['The Hueycoatl'], as: ['The Hueycoatl', 'Hueycoatl'] },
 
-	// The Wintertodt page states no drops of its own: what it gives comes out of a supply crate, and
-	// the crate has the table. Its rates move with points and level, so it may state none at all.
-	{ page: 'Supply crate', as: ['Wintertodt', 'Supply crate'] },
-	{ page: 'Tempoross', as: ['Tempoross', 'Reward pool'] },
+	// What Wintertodt gives comes out of a supply crate, and the crate has the table. Its rates move
+	// with points and level, so both pages may state none at all.
+	{ pages: ['Supply crate', 'Wintertodt'], as: ['Wintertodt', 'Supply crate'] },
+
+	{ pages: ['Tempoross', 'Reward pool'], as: ['Tempoross', 'Reward pool'] },
 
 	// Named after the chest rather than the fight, which is what the game calls the thing that gave
 	// it, and so what Dink writes.
-	{ page: 'Lunar Chest', as: ['Lunar Chest', 'Moons of Peril', 'Blood Moon', 'Blue Moon', 'Eclipse Moon'] },
+	{
+		pages: ['Lunar Chest'],
+		as: ['Lunar Chest', 'Moons of Peril', 'Blood Moon', 'Blue Moon', 'Eclipse Moon']
+	},
 
-	{ page: 'The Gauntlet', as: ['The Gauntlet', 'Gauntlet', 'Crystalline Hunllef'] },
-	{ page: 'Corrupted Gauntlet', as: ['Corrupted Gauntlet', 'Corrupted Hunllef'] },
-	{ page: 'Fortis Colosseum', as: ['Fortis Colosseum', 'Sol Heredit'] },
-	{ page: 'The Royal Titans', as: ['The Royal Titans', 'Royal Titans', 'Branda the Fire Queen', 'Eldric the Ice King'] },
+	// The two Gauntlets are read from their bosses rather than from the one page that describes both.
+	// That page states the corrupted rates, so taking it for the normal Gauntlet scored a Youngllef
+	// against one in eight hundred when the normal one is one in two thousand: not a missing number
+	// but a wrong one, which is worse.
+	{
+		pages: ['Crystalline Hunllef', 'The Gauntlet'],
+		as: ['The Gauntlet', 'Gauntlet', 'Crystalline Hunllef']
+	},
+	{
+		pages: ['Corrupted Hunllef', 'Corrupted Gauntlet'],
+		as: ['Corrupted Gauntlet', 'Corrupted Hunllef']
+	},
 
-	// The raids. Their unique tables are stated per raid rather than per kill, and the odds move with
-	// points, so these may read nothing. Worth asking for rather than assuming.
-	{ page: 'Chambers of Xeric', as: ['Chambers of Xeric'] },
-	{ page: 'Theatre of Blood', as: ['Theatre of Blood'] },
-	{ page: 'Tombs of Amascut', as: ['Tombs of Amascut'] }
+	// The Colosseum's rewards are the last boss's drops, not the arena's.
+	{ pages: ['Sol Heredit', 'Fortis Colosseum'], as: ['Fortis Colosseum', 'Sol Heredit'] },
+
+	{
+		pages: ['Royal Titans', 'The Royal Titans', 'Branda the Fire Queen'],
+		as: ['The Royal Titans', 'Royal Titans', 'Branda the Fire Queen', 'Eldric the Ice King']
+	},
+
+	// The raids, which may well read nothing however they are asked for. Their uniques are stated per
+	// raid and move with points and team size, so there is often no per-kill figure on the page to
+	// take. That is a fact about raids rather than a wrong page name, and it is the same reason
+	// Wintertodt cannot be scored.
+	{ pages: ['Chambers of Xeric', 'Chambers of Xeric/Loot'], as: ['Chambers of Xeric'] },
+	{ pages: ['Theatre of Blood', 'Theatre of Blood/Loot'], as: ['Theatre of Blood'] },
+	{ pages: ['Tombs of Amascut', 'Tombs of Amascut/Loot'], as: ['Tombs of Amascut'] }
 ];
 
 /** Kept however common: a guaranteed drop is a collection log slot like any other. */
@@ -183,23 +205,48 @@ async function itemIds()
 async function main(pages)
 {
 	const wanted = pages.length > 0
-		? pages.map(page => ({ page, as: [page] }))
+		? pages.map(page => ({ pages: [page], as: [page] }))
 		: MISSING;
 
 	const ids = await itemIds();
 	const out = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
 
-	for (const { page, as } of wanted)
+	for (const { pages: candidates, as } of wanted)
 	{
-		const drops = readPage(await rendered(page));
+		// Tried in turn until one of them states some drops. A boss is written up under whichever name
+		// the wiki settled on, and its table is as often on the thing that dropped it as on the fight:
+		// the Colosseum's rewards are Sol Heredit's, Wintertodt's are a supply crate's.
+		let found = null;
 
-		if (drops.size === 0)
+		for (const page of candidates)
 		{
-			console.log(`${page}: nothing read. The page may be named differently, or laid out differently.`);
+			let drops;
+
+			try
+			{
+				drops = readPage(await rendered(page));
+			}
+			catch (error)
+			{
+				// A page that is not there is one of the guesses being wrong, which is what the rest of
+				// the list is for.
+				continue;
+			}
+
+			if (drops.size > 0)
+			{
+				found = { page, drops };
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			console.log(`${as[0]}: nothing read from ${candidates.join(', ')}.`);
 			continue;
 		}
 
-		const rows = [...drops].map(([name, d]) =>
+		const rows = [...found.drops].map(([name, d]) =>
 		{
 			const id = ids.get(name.toLowerCase());
 
@@ -214,7 +261,7 @@ async function main(pages)
 			out[name] = rows;
 		}
 
-		console.log(`${page}: ${rows.length} drops, as ${as.join(', ')}`);
+		console.log(`${found.page}: ${rows.length} drops, as ${as.join(', ')}`);
 		for (const row of rows.slice(0, 8))
 		{
 			console.log(`   1 in ${row.d}  ${row.name}${row.i ? '' : '  (no item id)'}`);
