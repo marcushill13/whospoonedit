@@ -12,12 +12,14 @@
 
 import { parseDinkMessages } from './dink.js';
 import {
-	fetchChannelHistory,
+	readChannelChunk,
+	WRITING,
 	handleInteraction,
 	inviteUrl,
 	registerCommands,
 	verifySignature
 } from './discord.js';
+import rates, { version as RATES } from './rates.js';
 
 /** Codes people read aloud, so no O/0 or I/1. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -501,6 +503,28 @@ async function importFromDiscord(code, request, env)
 	// for the linked channel is how the bot works.
 	let messages = body?.messages;
 
+	// An export arrives whole and in whatever order the tool wrote it, so it says nothing about how
+	// far through the channel anybody is and must not be allowed to move the place.
+	const fromExport = Array.isArray(messages);
+
+	// A channel is read a chunk at a time, so who holds the place in it has to be settled. A plugin
+	// that knows about chunks sends its own cursor and drives the loop itself; one that does not gets
+	// the cursor kept here, and moves on a chunk each time somebody presses the button. Either way the
+	// channel is read the same way, and only the pressing differs.
+	const paged = body?.paged === true;
+	const startingOut = paged ? !body?.cursor : !group.discord_cursor;
+
+	// A group brought in against older rate data has drops in it that could not be scored then and can
+	// be now, and nothing would ever go back for them: a finished import leaves a mark saying how far
+	// it read, and later ones start from there. So when the data has changed underneath it, the mark is
+	// ignored and the channel is read again, once. The sweep stamps the new version when it finishes,
+	// which is what stops it happening every time.
+	const rescoring = group.discord_scored_with !== RATES;
+
+	// Where this read stopped, and whether any channel is left behind it. Handed back so a plugin that
+	// can carry on knows to, and a file export, which arrives whole, is already finished.
+	let chunk = { before: null, done: true };
+
 	if (!Array.isArray(messages))
 	{
 		if (!group.discord_channel_id)
@@ -522,19 +546,35 @@ async function importFromDiscord(code, request, env)
 
 		try
 		{
-			messages = await fetchChannelHistory(group.discord_channel_id, env.DISCORD_BOT_TOKEN);
+			chunk = await readChannelChunk(group.discord_channel_id, env.DISCORD_BOT_TOKEN, {
+				before: paged ? (body?.cursor ?? null) : (group.discord_cursor ?? null),
+
+				// A look spends the whole answer on reading. Bringing it in has the writing to pay for
+				// out of the same ten seconds, so it does not read as far in one go.
+				...(body?.dryRun ? {} : WRITING),
+
+				// A finished sweep leaves a high-water mark behind it, so bringing in a clan's whole
+				// history once does not mean reading all of it again to pick up this week's drops.
+				notBefore: rescoring ? 0 : (group.discord_read_through ?? 0)
+			});
+
+			messages = chunk.messages;
 		}
 		catch (error)
 		{
 			console.error(error);
 			return json({
-				error: 'Could not read that channel. ' + error.message,
+				error: whyDiscordRefused(error),
 				channelId: group.discord_channel_id
 			}, 502);
 		}
 	}
 
-	const { drops, skipped, names } = parseDinkMessages(messages);
+	const { drops, details, skipped, names } = parseDinkMessages(messages);
+
+	// Before anything is matched or scored, since a drop that borrows its source from the loot beside
+	// it can then be scored like any other.
+	fillFromLoot(drops, details);
 
 	const rows = await env.DB.prepare('SELECT rsn FROM members WHERE group_code = ?')
 		.bind(code)
@@ -551,6 +591,7 @@ async function importFromDiscord(code, request, env)
 	const matched = [];
 	const unmatched = {};
 	let withoutKillCount = 0;
+	let withoutRate = 0;
 
 	for (const drop of drops)
 	{
@@ -561,12 +602,22 @@ async function importFromDiscord(code, request, env)
 			continue;
 		}
 
+		// Dink's own figure first, where it gave one, so a group that has been reading its numbers for
+		// months is not told something different about a drop it already discussed.
+		const denominator = drop.denominator ?? rateFor(drop.source, drop.itemName);
+
 		if (!drop.killCount)
 		{
 			withoutKillCount++;
 		}
+		else if (!denominator)
+		{
+			// Counted apart from the above, because they are different holes: one is a drop nothing
+			// knows the kill count of, the other a drop nothing knows the odds of.
+			withoutRate++;
+		}
 
-		matched.push({ ...drop, rsn: member });
+		matched.push({ ...drop, rsn: member, denominator });
 	}
 
 	const summary = {
@@ -574,6 +625,7 @@ async function importFromDiscord(code, request, env)
 		skipped,
 		matched: matched.length,
 		withoutKillCount,
+		withoutRate,
 		names,
 		unmatched
 	};
@@ -582,7 +634,20 @@ async function importFromDiscord(code, request, env)
 	// import that silently drops a third of a channel is one nobody would trust afterwards.
 	if (body?.dryRun)
 	{
-		return json({ ...summary, imported: 0, dryRun: true });
+		// A dry run leaves the place in the channel where it was: what it has just described is
+		// what the next press brings in. The exception is a stretch holding nothing for this
+		// group, which is stepped over rather than offered again, since there is nothing in it
+		// to keep and a plugin that presses once per chunk would otherwise never get past it.
+		//
+		// The end of the channel counts as such a stretch, and leaving it out was a way to get
+		// stuck: the plugin says "nothing to bring in" and never commits, so nothing ever cleared
+		// the place, and every press after that read from the oldest end and found nothing there.
+		if (!fromExport && matched.length === 0)
+		{
+			await rememberPlace(code, { paged, startingOut, chunk, messages, dryRun: true }, env);
+		}
+
+		return json({ ...summary, imported: 0, dryRun: true, cursor: chunk.before, done: chunk.done });
 	}
 
 	const now = Date.now();
@@ -597,10 +662,23 @@ async function importFromDiscord(code, request, env)
 			touched.add(drop.rsn);
 
 			return env.DB.prepare(
-				'INSERT OR IGNORE INTO drops' +
+				'INSERT INTO drops' +
 				' (id, group_code, rsn, item_name, item_id, source, kill_count, denominator, share,' +
 				'  obtained_at, recorded_at, claimed)' +
-				' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)')
+				' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)' +
+
+				// A second import used to change nothing at all, which was right while the only thing
+				// it could have changed was a duplicate. It is wrong once the service learns to score
+				// something it could not score before: those drops are already on the board, unscored,
+				// and nothing would ever go back for them.
+				//
+				// So a gap is filled and a value is never overwritten. What is already known came from
+				// the drop itself or from Dink, and is not for a later pass to second-guess.
+				' ON CONFLICT(id) DO UPDATE SET' +
+				'  source = COALESCE(drops.source, excluded.source),' +
+				'  kill_count = COALESCE(drops.kill_count, excluded.kill_count),' +
+				'  denominator = COALESCE(drops.denominator, excluded.denominator),' +
+				'  share = COALESCE(drops.share, excluded.share)')
 				.bind(
 					drop.id,
 					code,
@@ -616,16 +694,287 @@ async function importFromDiscord(code, request, env)
 		}));
 	}
 
-	for (const rsn of touched)
+	await refreshTotalsFor(code, [...touched], env);
+
+	if (!fromExport)
 	{
-		await refreshTotals(code, rsn, env);
+		await rememberPlace(code, { paged, startingOut, chunk, messages }, env);
 	}
 
 	return json({
 		...summary,
 		imported: matched.length,
+		cursor: chunk.before,
+		done: chunk.done,
 		leaderboard: await leaderboardFor(code, env)
 	});
+}
+
+/**
+ * One spelling for a name, so one written in a Discord message finds one written in a drop table.
+ *
+ * The same function built the table, which is the only reason this works: "Hydra's claw", "Torva
+ * full helm (damaged)" and "Vet'ion" are punctuated differently by everything that writes them.
+ */
+const spelled = text => String(text ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+/**
+ * The tier a casket belongs to, from whatever the game called the thing that dropped it.
+ *
+ * Loose on purpose, the same way the plugin is: one tier arrives as "Clue Scroll (Hard)", "Reward
+ * Casket (Hard)" and "hard Treasure Trails" depending which part of the game is speaking.
+ */
+export function clueTier(source)
+{
+	const text = spelled(source);
+
+	for (const tier of ['beginner', 'easy', 'medium', 'hard', 'elite', 'master'])
+	{
+		if (text.includes(tier))
+		{
+			return tier;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * How rare a thing is, worked out here when the message that carried it did not say.
+ *
+ * Dink states a rarity in some of its notifications and not in others, and the ones without were kept
+ * and never scored, which is a drop on the board with nothing to judge it by. The plugin has never had
+ * this problem: it holds the drop data and can ask the game what an item is called. This is the same
+ * data, keyed by name, so the service can do it too.
+ *
+ * Still nothing rather than a guess when the source is unknown: a monster that is not in the data is
+ * not a monster with an average drop rate.
+ */
+export function rateFor(source, itemName)
+{
+	if (!source || !itemName)
+	{
+		return null;
+	}
+
+	const item = spelled(itemName);
+
+	for (const at of filedUnder(source))
+	{
+		const found = rates[at]?.[item];
+		if (found)
+		{
+			return found;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * The names one source might be filed under, likeliest first.
+ *
+ * Dink writes whatever the game called the thing that gave the item, which for an event is often a
+ * container with the event in brackets: "Reward pool (Tempoross)". The table knows the pool and it
+ * knows Tempoross, and neither of them is spelled like the whole string, so all three are tried.
+ *
+ * The clue tier is offered first and does not stop the rest being tried, because a tier is recognised
+ * by a word appearing anywhere in the source, and a boss whose name happens to contain one is a boss
+ * rather than a casket.
+ */
+export function* filedUnder(source)
+{
+	const tier = clueTier(source);
+	if (tier)
+	{
+		yield 'clue ' + tier;
+	}
+
+	yield spelled(source);
+
+	const brackets = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(String(source));
+	if (brackets)
+	{
+		yield spelled(brackets[2]);
+		yield spelled(brackets[1]);
+	}
+}
+
+/** How far apart a loot notification and a collection log message may be and still be one drop. */
+const SAME_DROP_MILLIS = 5 * 60 * 1000;
+
+/**
+ * Fills in what a collection log message did not say, from the loot notification beside it.
+ *
+ * Dink writes the source and the count into a collection log message only when it knows the count,
+ * and leaves both out together otherwise, which is why a drop can arrive with no details at all. The
+ * loot notification fired seconds earlier usually has all three.
+ *
+ * Matched on who, what, and when. The same item to the same player within a few minutes is the same
+ * drop; the same item to the same player a year later is a different one, and its details are not
+ * this drop's to borrow.
+ */
+export function fillFromLoot(drops, details)
+{
+	if (details.length === 0)
+	{
+		return;
+	}
+
+	for (const drop of drops)
+	{
+		if (drop.source && drop.killCount && drop.denominator)
+		{
+			continue;
+		}
+
+		let best = null;
+		let closest = SAME_DROP_MILLIS;
+
+		for (const detail of details)
+		{
+			if (detail.rsn.toLowerCase() !== drop.rsn.toLowerCase())
+			{
+				continue;
+			}
+
+			if (!detail.items.some(item => item.toLowerCase() === drop.itemName.toLowerCase()))
+			{
+				continue;
+			}
+
+			const apart = Math.abs(detail.at - drop.obtainedAt);
+			if (apart <= closest)
+			{
+				best = detail;
+				closest = apart;
+			}
+		}
+
+		if (!best)
+		{
+			continue;
+		}
+
+		drop.source = drop.source ?? best.source;
+		drop.killCount = drop.killCount ?? best.killCount;
+		drop.denominator = drop.denominator ?? best.denominator;
+	}
+}
+
+/**
+ * Rebuilds the running totals of everyone an import touched, in one statement.
+ *
+ * One member at a time is right for a drop landing on its own and wrong here. An import touches the
+ * whole group at once, and a round trip each is both slow enough to lose the plugin's patience partway
+ * through and enough subrequests to run a Worker out of its allowance.
+ *
+ * The figures are the ones refreshTotals works out, said in SQL: how many scored drops, how many of
+ * them were luckier than the middle, and the mean share across them.
+ */
+async function refreshTotalsFor(code, names, env)
+{
+	if (names.length === 0)
+	{
+		return;
+	}
+
+	const half = SHARE_SCALE / 2;
+	const theirs = 'FROM drops WHERE group_code = members.group_code AND rsn = members.rsn'
+		+ ' AND share IS NOT NULL';
+
+	await env.DB.prepare(
+		'UPDATE members SET' +
+		' spoons = (SELECT COALESCE(SUM(CASE WHEN share < ? THEN 1 ELSE 0 END), 0) ' + theirs + '),' +
+		' scored = (SELECT COUNT(*) ' + theirs + '),' +
+		' avg_share = (SELECT CAST(ROUND(COALESCE(AVG(share), ?)) AS INTEGER) ' + theirs + ')' +
+		' WHERE group_code = ? AND rsn IN (' + names.map(() => '?').join(', ') + ')')
+		.bind(half, half, code, ...names)
+		.run();
+}
+
+/**
+ * Keeps the place in a channel that is being read a chunk at a time.
+ *
+ * The cursor is only for a plugin that does not hold its own: it presses the button again and carries
+ * on from here. What is kept for every plugin is the high-water mark, the newest message a finished
+ * sweep saw, so that the next sweep stops as soon as it reaches ground already covered.
+ *
+ * That mark has to be taken at the start of a sweep, while the newest message is still in front of
+ * us. By the end we are years down the channel, where the newest thing in the last chunk read is the
+ * oldest thing in the channel.
+ */
+export async function rememberPlace(code, { paged, startingOut, chunk, messages, dryRun }, env)
+{
+	const newest = startingOut && messages.length > 0
+		? Date.parse(messages[0].timestamp ?? '') || null
+		: null;
+
+	// A look that reaches the end has finished nothing. It clears the place so the next press starts
+	// afresh instead of reading the oldest end for ever, and leaves every mark of a completed import
+	// alone: saying a channel has been read, and scored against this data, is the commit's to say. A
+	// few presses answered with No would otherwise quietly use up a re-read that never happened.
+	if (chunk.done && dryRun)
+	{
+		await env.DB.prepare(
+			'UPDATE groups SET discord_cursor = NULL, discord_sweep_newest = NULL WHERE code = ?')
+			.bind(code)
+			.run();
+
+		return;
+	}
+
+	if (chunk.done)
+	{
+		await env.DB.prepare(
+			'UPDATE groups SET discord_cursor = NULL, discord_sweep_newest = NULL,' +
+			' discord_read_through = COALESCE(?, discord_sweep_newest, discord_read_through),' +
+
+			// Stamped only on a finished sweep. Stamping it earlier would stop a sweep that gave out
+			// halfway from ever reading the half it never got to.
+			' discord_scored_with = ?' +
+			' WHERE code = ?')
+			.bind(newest, RATES, code)
+			.run();
+
+		return;
+	}
+
+	// A paged plugin holds its own cursor, and storing a second one here would leave two places in
+	// the channel disagreeing about where the reading had got to.
+	await env.DB.prepare(
+		'UPDATE groups SET discord_cursor = ?,' +
+		' discord_sweep_newest = COALESCE(?, discord_sweep_newest) WHERE code = ?')
+		.bind(paged ? null : chunk.before, newest, code)
+		.run();
+}
+
+/**
+ * Which of Discord's refusals this is, said in the words that fit it.
+ *
+ * They call for opposite fixes and only one of them is about the channel. A rejected token is the
+ * service's own, which nobody but whoever deployed it can put right, and telling them the channel
+ * could not be read sends them off inspecting permissions that were never the problem.
+ */
+function whyDiscordRefused(error)
+{
+	switch (error?.status)
+	{
+		case 401:
+			return 'This service\'s Discord bot token has been rejected, so nothing can be read from '
+				+ 'Discord at all. Whoever runs the service needs to set a new one. Nothing about your '
+				+ 'group or your channel is wrong.';
+
+		case 403:
+			return 'The bot cannot see that channel. It needs View Channel and Read Message History in '
+				+ 'it.';
+
+		case 404:
+			return 'That channel is gone. Run /spoons link again in the channel you want read.';
+
+		default:
+			return 'Could not read that channel. ' + (error?.message ?? '');
+	}
 }
 
 /**

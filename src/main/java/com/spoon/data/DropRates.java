@@ -37,21 +37,30 @@ public class DropRates
 	@Inject
 	private DropRates(Gson gson)
 	{
-		this.bySource = load(gson);
+		Map<String, List<Entry>> loaded = new java.util.HashMap<>(read(gson, "/com/spoon/npc-drops.json"));
+
+		// Laid over the top rather than merged into the file itself. Dink's data is theirs, kept as
+		// they published it, and what is missing from it is a separate thing that can be rebuilt on
+		// its own. Grotesque Guardians is the reason it exists: a boss its data has never had, whose
+		// drops sat unscored while the wiki stated their odds plainly.
+		loaded.putAll(read(gson, "/com/spoon/extra-drops.json"));
+
+		this.bySource = loaded;
 		log.debug("Loaded drop rates for {} sources", bySource.size());
 	}
 
-	private static Map<String, List<Entry>> load(Gson gson)
+	private static Map<String, List<Entry>> read(Gson gson, String resource)
 	{
 		Type type = new TypeToken<Map<String, List<Entry>>>()
 		{
 		}.getType();
 
-		try (InputStream in = DropRates.class.getResourceAsStream("/com/spoon/npc-drops.json"))
+		try (InputStream in = DropRates.class.getResourceAsStream(resource))
 		{
 			if (in == null)
 			{
-				log.warn("The drop rate data is missing from the plugin");
+				// The wiki data is optional and generated, so a build without it is a normal build.
+				log.debug("No drop rate data at {}", resource);
 				return Collections.emptyMap();
 			}
 
@@ -64,7 +73,7 @@ public class DropRates
 		{
 			// Never fatal. Without rates, drops are still recorded, they simply cannot be scored, which
 			// is a worse plugin rather than a broken one.
-			log.warn("Could not read the drop rate data", e);
+			log.warn("Could not read the drop rate data at {}", resource, e);
 			return Collections.emptyMap();
 		}
 	}

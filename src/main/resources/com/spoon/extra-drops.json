@@ -1,0 +1,1793 @@
+{
+	"Grotesque Guardians": [
+		{
+			"name": "Granite dust",
+			"d": 1,
+			"i": 21726
+		},
+		{
+			"name": "Granite maul",
+			"d": 125.25,
+			"i": 4153
+		},
+		{
+			"name": "Granite gloves",
+			"d": 250.25,
+			"i": 21736
+		},
+		{
+			"name": "Granite ring",
+			"d": 250.25,
+			"i": 21739
+		},
+		{
+			"name": "Granite hammer",
+			"d": 375.25,
+			"i": 21742
+		},
+		{
+			"name": "Black tourmaline core",
+			"d": 500.25,
+			"i": 21730
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 12.09,
+			"i": 1275
+		},
+		{
+			"name": "Rune full helm",
+			"d": 14.45,
+			"i": 1163
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.45,
+			"i": 1079
+		},
+		{
+			"name": "Rune 2h sword",
+			"d": 18,
+			"i": 1319
+		},
+		{
+			"name": "Rune battleaxe",
+			"d": 23.92,
+			"i": 1373
+		},
+		{
+			"name": "Dragon longsword",
+			"d": 71.25,
+			"i": 1305
+		},
+		{
+			"name": "Adamant boots",
+			"d": 71.25,
+			"i": 4129
+		},
+		{
+			"name": "Dragon med helm",
+			"d": 71.25,
+			"i": 1149
+		},
+		{
+			"name": "Mushroom potato",
+			"d": 7.36,
+			"i": 7058
+		},
+		{
+			"name": "Saradomin brew(4)",
+			"d": 9.13,
+			"i": 6685
+		},
+		{
+			"name": "Magic potion(2)",
+			"d": 12.09,
+			"i": 3044
+		},
+		{
+			"name": "Ranging potion(2)",
+			"d": 12.09,
+			"i": 171
+		},
+		{
+			"name": "Super combat potion(2)",
+			"d": 12.09,
+			"i": 12699
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 18,
+			"i": 2434
+		},
+		{
+			"name": "Gold ore",
+			"d": 10.4,
+			"i": 444
+		},
+		{
+			"name": "Adamantite bar",
+			"d": 12.09,
+			"i": 2361
+		},
+		{
+			"name": "Gold bar",
+			"d": 12.09,
+			"i": 2357
+		},
+		{
+			"name": "Mithril bar",
+			"d": 12.09,
+			"i": 2359
+		},
+		{
+			"name": "Coal",
+			"d": 14.45,
+			"i": 453
+		},
+		{
+			"name": "Runite ore",
+			"d": 18,
+			"i": 451
+		},
+		{
+			"name": "Runite bar",
+			"d": 23.92,
+			"i": 2363
+		},
+		{
+			"name": "Raw shark",
+			"d": 47.58,
+			"i": 383
+		},
+		{
+			"name": "Shark lure",
+			"d": 47.58
+		},
+		{
+			"name": "Raw sea turtle",
+			"d": 71.25,
+			"i": 395
+		},
+		{
+			"name": "Coins",
+			"d": 7.36,
+			"i": 617
+		},
+		{
+			"name": "Chaos rune",
+			"d": 9.13,
+			"i": 562
+		},
+		{
+			"name": "Crystal key",
+			"d": 14.45,
+			"i": 989
+		},
+		{
+			"name": "Death rune",
+			"d": 14.45,
+			"i": 560
+		},
+		{
+			"name": "Dragon dart tip",
+			"d": 14.45,
+			"i": 11232
+		},
+		{
+			"name": "Diamond bolt tips",
+			"d": 23.92,
+			"i": 9192
+		},
+		{
+			"name": "Dragonstone bolt tips",
+			"d": 35.75,
+			"i": 9193
+		},
+		{
+			"name": "Onyx bolt tips",
+			"d": 35.75,
+			"i": 9194
+		},
+		{
+			"name": "Dragon arrowtips",
+			"d": 71.25,
+			"i": 11237
+		},
+		{
+			"name": "Soul rune",
+			"d": 71.25,
+			"i": 566
+		},
+		{
+			"name": "Brimstone key",
+			"d": 44,
+			"i": 23083
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 230,
+			"i": 12073
+		},
+		{
+			"name": "Noon",
+			"d": 3000,
+			"i": 21748
+		},
+		{
+			"name": "Jar of Stone",
+			"d": 5000,
+			"i": 21745
+		}
+	],
+	"Dusk": [
+		{
+			"name": "Granite dust",
+			"d": 1,
+			"i": 21726
+		},
+		{
+			"name": "Granite maul",
+			"d": 125.25,
+			"i": 4153
+		},
+		{
+			"name": "Granite gloves",
+			"d": 250.25,
+			"i": 21736
+		},
+		{
+			"name": "Granite ring",
+			"d": 250.25,
+			"i": 21739
+		},
+		{
+			"name": "Granite hammer",
+			"d": 375.25,
+			"i": 21742
+		},
+		{
+			"name": "Black tourmaline core",
+			"d": 500.25,
+			"i": 21730
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 12.09,
+			"i": 1275
+		},
+		{
+			"name": "Rune full helm",
+			"d": 14.45,
+			"i": 1163
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.45,
+			"i": 1079
+		},
+		{
+			"name": "Rune 2h sword",
+			"d": 18,
+			"i": 1319
+		},
+		{
+			"name": "Rune battleaxe",
+			"d": 23.92,
+			"i": 1373
+		},
+		{
+			"name": "Dragon longsword",
+			"d": 71.25,
+			"i": 1305
+		},
+		{
+			"name": "Adamant boots",
+			"d": 71.25,
+			"i": 4129
+		},
+		{
+			"name": "Dragon med helm",
+			"d": 71.25,
+			"i": 1149
+		},
+		{
+			"name": "Mushroom potato",
+			"d": 7.36,
+			"i": 7058
+		},
+		{
+			"name": "Saradomin brew(4)",
+			"d": 9.13,
+			"i": 6685
+		},
+		{
+			"name": "Magic potion(2)",
+			"d": 12.09,
+			"i": 3044
+		},
+		{
+			"name": "Ranging potion(2)",
+			"d": 12.09,
+			"i": 171
+		},
+		{
+			"name": "Super combat potion(2)",
+			"d": 12.09,
+			"i": 12699
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 18,
+			"i": 2434
+		},
+		{
+			"name": "Gold ore",
+			"d": 10.4,
+			"i": 444
+		},
+		{
+			"name": "Adamantite bar",
+			"d": 12.09,
+			"i": 2361
+		},
+		{
+			"name": "Gold bar",
+			"d": 12.09,
+			"i": 2357
+		},
+		{
+			"name": "Mithril bar",
+			"d": 12.09,
+			"i": 2359
+		},
+		{
+			"name": "Coal",
+			"d": 14.45,
+			"i": 453
+		},
+		{
+			"name": "Runite ore",
+			"d": 18,
+			"i": 451
+		},
+		{
+			"name": "Runite bar",
+			"d": 23.92,
+			"i": 2363
+		},
+		{
+			"name": "Raw shark",
+			"d": 47.58,
+			"i": 383
+		},
+		{
+			"name": "Shark lure",
+			"d": 47.58
+		},
+		{
+			"name": "Raw sea turtle",
+			"d": 71.25,
+			"i": 395
+		},
+		{
+			"name": "Coins",
+			"d": 7.36,
+			"i": 617
+		},
+		{
+			"name": "Chaos rune",
+			"d": 9.13,
+			"i": 562
+		},
+		{
+			"name": "Crystal key",
+			"d": 14.45,
+			"i": 989
+		},
+		{
+			"name": "Death rune",
+			"d": 14.45,
+			"i": 560
+		},
+		{
+			"name": "Dragon dart tip",
+			"d": 14.45,
+			"i": 11232
+		},
+		{
+			"name": "Diamond bolt tips",
+			"d": 23.92,
+			"i": 9192
+		},
+		{
+			"name": "Dragonstone bolt tips",
+			"d": 35.75,
+			"i": 9193
+		},
+		{
+			"name": "Onyx bolt tips",
+			"d": 35.75,
+			"i": 9194
+		},
+		{
+			"name": "Dragon arrowtips",
+			"d": 71.25,
+			"i": 11237
+		},
+		{
+			"name": "Soul rune",
+			"d": 71.25,
+			"i": 566
+		},
+		{
+			"name": "Brimstone key",
+			"d": 44,
+			"i": 23083
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 230,
+			"i": 12073
+		},
+		{
+			"name": "Noon",
+			"d": 3000,
+			"i": 21748
+		},
+		{
+			"name": "Jar of Stone",
+			"d": 5000,
+			"i": 21745
+		}
+	],
+	"Dawn": [
+		{
+			"name": "Granite dust",
+			"d": 1,
+			"i": 21726
+		},
+		{
+			"name": "Granite maul",
+			"d": 125.25,
+			"i": 4153
+		},
+		{
+			"name": "Granite gloves",
+			"d": 250.25,
+			"i": 21736
+		},
+		{
+			"name": "Granite ring",
+			"d": 250.25,
+			"i": 21739
+		},
+		{
+			"name": "Granite hammer",
+			"d": 375.25,
+			"i": 21742
+		},
+		{
+			"name": "Black tourmaline core",
+			"d": 500.25,
+			"i": 21730
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 12.09,
+			"i": 1275
+		},
+		{
+			"name": "Rune full helm",
+			"d": 14.45,
+			"i": 1163
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.45,
+			"i": 1079
+		},
+		{
+			"name": "Rune 2h sword",
+			"d": 18,
+			"i": 1319
+		},
+		{
+			"name": "Rune battleaxe",
+			"d": 23.92,
+			"i": 1373
+		},
+		{
+			"name": "Dragon longsword",
+			"d": 71.25,
+			"i": 1305
+		},
+		{
+			"name": "Adamant boots",
+			"d": 71.25,
+			"i": 4129
+		},
+		{
+			"name": "Dragon med helm",
+			"d": 71.25,
+			"i": 1149
+		},
+		{
+			"name": "Mushroom potato",
+			"d": 7.36,
+			"i": 7058
+		},
+		{
+			"name": "Saradomin brew(4)",
+			"d": 9.13,
+			"i": 6685
+		},
+		{
+			"name": "Magic potion(2)",
+			"d": 12.09,
+			"i": 3044
+		},
+		{
+			"name": "Ranging potion(2)",
+			"d": 12.09,
+			"i": 171
+		},
+		{
+			"name": "Super combat potion(2)",
+			"d": 12.09,
+			"i": 12699
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 18,
+			"i": 2434
+		},
+		{
+			"name": "Gold ore",
+			"d": 10.4,
+			"i": 444
+		},
+		{
+			"name": "Adamantite bar",
+			"d": 12.09,
+			"i": 2361
+		},
+		{
+			"name": "Gold bar",
+			"d": 12.09,
+			"i": 2357
+		},
+		{
+			"name": "Mithril bar",
+			"d": 12.09,
+			"i": 2359
+		},
+		{
+			"name": "Coal",
+			"d": 14.45,
+			"i": 453
+		},
+		{
+			"name": "Runite ore",
+			"d": 18,
+			"i": 451
+		},
+		{
+			"name": "Runite bar",
+			"d": 23.92,
+			"i": 2363
+		},
+		{
+			"name": "Raw shark",
+			"d": 47.58,
+			"i": 383
+		},
+		{
+			"name": "Shark lure",
+			"d": 47.58
+		},
+		{
+			"name": "Raw sea turtle",
+			"d": 71.25,
+			"i": 395
+		},
+		{
+			"name": "Coins",
+			"d": 7.36,
+			"i": 617
+		},
+		{
+			"name": "Chaos rune",
+			"d": 9.13,
+			"i": 562
+		},
+		{
+			"name": "Crystal key",
+			"d": 14.45,
+			"i": 989
+		},
+		{
+			"name": "Death rune",
+			"d": 14.45,
+			"i": 560
+		},
+		{
+			"name": "Dragon dart tip",
+			"d": 14.45,
+			"i": 11232
+		},
+		{
+			"name": "Diamond bolt tips",
+			"d": 23.92,
+			"i": 9192
+		},
+		{
+			"name": "Dragonstone bolt tips",
+			"d": 35.75,
+			"i": 9193
+		},
+		{
+			"name": "Onyx bolt tips",
+			"d": 35.75,
+			"i": 9194
+		},
+		{
+			"name": "Dragon arrowtips",
+			"d": 71.25,
+			"i": 11237
+		},
+		{
+			"name": "Soul rune",
+			"d": 71.25,
+			"i": 566
+		},
+		{
+			"name": "Brimstone key",
+			"d": 44,
+			"i": 23083
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 230,
+			"i": 12073
+		},
+		{
+			"name": "Noon",
+			"d": 3000,
+			"i": 21748
+		},
+		{
+			"name": "Jar of Stone",
+			"d": 5000,
+			"i": 21745
+		}
+	],
+	"The Hueycoatl": [
+		{
+			"name": "Big bones",
+			"d": 1,
+			"i": 532
+		},
+		{
+			"name": "Dragon hunter wand",
+			"d": 105,
+			"i": 30070
+		},
+		{
+			"name": "Hueycoatl hide",
+			"d": 28.64,
+			"i": 30085
+		},
+		{
+			"name": "Tome of Earth (empty)",
+			"d": 90,
+			"i": 30066
+		},
+		{
+			"name": "Rune mace",
+			"d": 22.67,
+			"i": 1432
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 22.67,
+			"i": 1333
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 34,
+			"i": 1093
+		},
+		{
+			"name": "Adamant platebody",
+			"d": 22.67,
+			"i": 1123
+		},
+		{
+			"name": "Death rune",
+			"d": 22.67,
+			"i": 560
+		},
+		{
+			"name": "Earth rune",
+			"d": 34,
+			"i": 557
+		},
+		{
+			"name": "Cosmic rune",
+			"d": 34,
+			"i": 564
+		},
+		{
+			"name": "Nature rune",
+			"d": 34,
+			"i": 561
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 34,
+			"i": 5302
+		},
+		{
+			"name": "Huasca seed",
+			"d": 34,
+			"i": 30088
+		},
+		{
+			"name": "Toadflax seed",
+			"d": 34,
+			"i": 5296
+		},
+		{
+			"name": "Torstol seed",
+			"d": 34,
+			"i": 5304
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 34,
+			"i": 5295
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 22.67,
+			"i": 5298
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 22.67,
+			"i": 5299
+		},
+		{
+			"name": "Soiled page",
+			"d": 13.6,
+			"i": 30068
+		},
+		{
+			"name": "Adamant bolts(unf)",
+			"d": 22.67,
+			"i": 9380
+		},
+		{
+			"name": "Air orb",
+			"d": 22.67,
+			"i": 573
+		},
+		{
+			"name": "Raw shark",
+			"d": 22.67,
+			"i": 383
+		},
+		{
+			"name": "Sunfire splinters",
+			"d": 22.67,
+			"i": 28924
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 22.67,
+			"i": 29378
+		},
+		{
+			"name": "Dragon bones",
+			"d": 22.67,
+			"i": 536
+		},
+		{
+			"name": "Adamantite ore",
+			"d": 34,
+			"i": 449
+		},
+		{
+			"name": "Steel cannonball",
+			"d": 22.67
+		},
+		{
+			"name": "Rune dart tip",
+			"d": 34,
+			"i": 824
+		},
+		{
+			"name": "Limpwurt root",
+			"d": 34,
+			"i": 225
+		},
+		{
+			"name": "Tooth half of key (moon key)",
+			"d": 75
+		},
+		{
+			"name": "Huberte",
+			"d": 400,
+			"i": 30152
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 50,
+			"i": 2722
+		}
+	],
+	"Hueycoatl": [
+		{
+			"name": "Big bones",
+			"d": 1,
+			"i": 532
+		},
+		{
+			"name": "Dragon hunter wand",
+			"d": 105,
+			"i": 30070
+		},
+		{
+			"name": "Hueycoatl hide",
+			"d": 28.64,
+			"i": 30085
+		},
+		{
+			"name": "Tome of Earth (empty)",
+			"d": 90,
+			"i": 30066
+		},
+		{
+			"name": "Rune mace",
+			"d": 22.67,
+			"i": 1432
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 22.67,
+			"i": 1333
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 34,
+			"i": 1093
+		},
+		{
+			"name": "Adamant platebody",
+			"d": 22.67,
+			"i": 1123
+		},
+		{
+			"name": "Death rune",
+			"d": 22.67,
+			"i": 560
+		},
+		{
+			"name": "Earth rune",
+			"d": 34,
+			"i": 557
+		},
+		{
+			"name": "Cosmic rune",
+			"d": 34,
+			"i": 564
+		},
+		{
+			"name": "Nature rune",
+			"d": 34,
+			"i": 561
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 34,
+			"i": 5302
+		},
+		{
+			"name": "Huasca seed",
+			"d": 34,
+			"i": 30088
+		},
+		{
+			"name": "Toadflax seed",
+			"d": 34,
+			"i": 5296
+		},
+		{
+			"name": "Torstol seed",
+			"d": 34,
+			"i": 5304
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 34,
+			"i": 5295
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 22.67,
+			"i": 5298
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 22.67,
+			"i": 5299
+		},
+		{
+			"name": "Soiled page",
+			"d": 13.6,
+			"i": 30068
+		},
+		{
+			"name": "Adamant bolts(unf)",
+			"d": 22.67,
+			"i": 9380
+		},
+		{
+			"name": "Air orb",
+			"d": 22.67,
+			"i": 573
+		},
+		{
+			"name": "Raw shark",
+			"d": 22.67,
+			"i": 383
+		},
+		{
+			"name": "Sunfire splinters",
+			"d": 22.67,
+			"i": 28924
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 22.67,
+			"i": 29378
+		},
+		{
+			"name": "Dragon bones",
+			"d": 22.67,
+			"i": 536
+		},
+		{
+			"name": "Adamantite ore",
+			"d": 34,
+			"i": 449
+		},
+		{
+			"name": "Steel cannonball",
+			"d": 22.67
+		},
+		{
+			"name": "Rune dart tip",
+			"d": 34,
+			"i": 824
+		},
+		{
+			"name": "Limpwurt root",
+			"d": 34,
+			"i": 225
+		},
+		{
+			"name": "Tooth half of key (moon key)",
+			"d": 75
+		},
+		{
+			"name": "Huberte",
+			"d": 400,
+			"i": 30152
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 50,
+			"i": 2722
+		}
+	],
+	"Tempoross": [
+		{
+			"name": "Spirit flakes",
+			"d": 4,
+			"i": 25588
+		},
+		{
+			"name": "Casket (Reward pool)",
+			"d": 20
+		},
+		{
+			"name": "Soaked page",
+			"d": 53.69,
+			"i": 25578
+		},
+		{
+			"name": "Fish barrel",
+			"d": 400,
+			"i": 25582
+		},
+		{
+			"name": "Tackle box",
+			"d": 400,
+			"i": 25580
+		},
+		{
+			"name": "Big harpoonfish",
+			"d": 1600,
+			"i": 25559
+		},
+		{
+			"name": "Tome of Water (empty)",
+			"d": 1600,
+			"i": 25576
+		},
+		{
+			"name": "Dragon harpoon",
+			"d": 8000,
+			"i": 21028
+		},
+		{
+			"name": "Tiny tempor",
+			"d": 8000,
+			"i": 25602
+		}
+	],
+	"Reward pool": [
+		{
+			"name": "Spirit flakes",
+			"d": 4,
+			"i": 25588
+		},
+		{
+			"name": "Casket (Reward pool)",
+			"d": 20
+		},
+		{
+			"name": "Soaked page",
+			"d": 53.69,
+			"i": 25578
+		},
+		{
+			"name": "Fish barrel",
+			"d": 400,
+			"i": 25582
+		},
+		{
+			"name": "Tackle box",
+			"d": 400,
+			"i": 25580
+		},
+		{
+			"name": "Big harpoonfish",
+			"d": 1600,
+			"i": 25559
+		},
+		{
+			"name": "Tome of Water (empty)",
+			"d": 1600,
+			"i": 25576
+		},
+		{
+			"name": "Dragon harpoon",
+			"d": 8000,
+			"i": 21028
+		},
+		{
+			"name": "Tiny tempor",
+			"d": 8000,
+			"i": 25602
+		}
+	],
+	"Lunar Chest": [
+		{
+			"name": "Eclipse atlatl",
+			"d": 224,
+			"i": 29000
+		},
+		{
+			"name": "Eclipse moon helm",
+			"d": 224,
+			"i": 29010
+		},
+		{
+			"name": "Eclipse moon chestplate",
+			"d": 224,
+			"i": 29004
+		},
+		{
+			"name": "Eclipse moon tassets",
+			"d": 224,
+			"i": 29007
+		},
+		{
+			"name": "Dual macuahuitl",
+			"d": 224,
+			"i": 28997
+		},
+		{
+			"name": "Blood moon helm",
+			"d": 224,
+			"i": 29028
+		},
+		{
+			"name": "Blood moon chestplate",
+			"d": 224,
+			"i": 29022
+		},
+		{
+			"name": "Blood moon tassets",
+			"d": 224,
+			"i": 29025
+		},
+		{
+			"name": "Blue moon spear",
+			"d": 224,
+			"i": 28988
+		},
+		{
+			"name": "Blue moon helm",
+			"d": 224,
+			"i": 29019
+		},
+		{
+			"name": "Blue moon chestplate",
+			"d": 224,
+			"i": 29013
+		},
+		{
+			"name": "Blue moon tassets",
+			"d": 224,
+			"i": 29016
+		},
+		{
+			"name": "Atlatl dart",
+			"d": 1.5,
+			"i": 28991
+		},
+		{
+			"name": "Blessed bone shards",
+			"d": 2.95,
+			"i": 29381
+		},
+		{
+			"name": "Wyrmling bones",
+			"d": 5.43,
+			"i": 28899
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 2.13,
+			"i": 29378
+		},
+		{
+			"name": "Swamp tar",
+			"d": 1.74,
+			"i": 1939
+		},
+		{
+			"name": "Water orb",
+			"d": 2.95,
+			"i": 571
+		},
+		{
+			"name": "Supercompost",
+			"d": 2.13,
+			"i": 6034
+		},
+		{
+			"name": "Soft clay",
+			"d": 2.13,
+			"i": 1761
+		},
+		{
+			"name": "Grimy harralander",
+			"d": 2.13,
+			"i": 205
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 5.43,
+			"i": 209
+		},
+		{
+			"name": "Maple seed",
+			"d": 2.95,
+			"i": 5314
+		},
+		{
+			"name": "Yew seed",
+			"d": 5.43,
+			"i": 5315
+		}
+	],
+	"Moons of Peril": [
+		{
+			"name": "Eclipse atlatl",
+			"d": 224,
+			"i": 29000
+		},
+		{
+			"name": "Eclipse moon helm",
+			"d": 224,
+			"i": 29010
+		},
+		{
+			"name": "Eclipse moon chestplate",
+			"d": 224,
+			"i": 29004
+		},
+		{
+			"name": "Eclipse moon tassets",
+			"d": 224,
+			"i": 29007
+		},
+		{
+			"name": "Dual macuahuitl",
+			"d": 224,
+			"i": 28997
+		},
+		{
+			"name": "Blood moon helm",
+			"d": 224,
+			"i": 29028
+		},
+		{
+			"name": "Blood moon chestplate",
+			"d": 224,
+			"i": 29022
+		},
+		{
+			"name": "Blood moon tassets",
+			"d": 224,
+			"i": 29025
+		},
+		{
+			"name": "Blue moon spear",
+			"d": 224,
+			"i": 28988
+		},
+		{
+			"name": "Blue moon helm",
+			"d": 224,
+			"i": 29019
+		},
+		{
+			"name": "Blue moon chestplate",
+			"d": 224,
+			"i": 29013
+		},
+		{
+			"name": "Blue moon tassets",
+			"d": 224,
+			"i": 29016
+		},
+		{
+			"name": "Atlatl dart",
+			"d": 1.5,
+			"i": 28991
+		},
+		{
+			"name": "Blessed bone shards",
+			"d": 2.95,
+			"i": 29381
+		},
+		{
+			"name": "Wyrmling bones",
+			"d": 5.43,
+			"i": 28899
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 2.13,
+			"i": 29378
+		},
+		{
+			"name": "Swamp tar",
+			"d": 1.74,
+			"i": 1939
+		},
+		{
+			"name": "Water orb",
+			"d": 2.95,
+			"i": 571
+		},
+		{
+			"name": "Supercompost",
+			"d": 2.13,
+			"i": 6034
+		},
+		{
+			"name": "Soft clay",
+			"d": 2.13,
+			"i": 1761
+		},
+		{
+			"name": "Grimy harralander",
+			"d": 2.13,
+			"i": 205
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 5.43,
+			"i": 209
+		},
+		{
+			"name": "Maple seed",
+			"d": 2.95,
+			"i": 5314
+		},
+		{
+			"name": "Yew seed",
+			"d": 5.43,
+			"i": 5315
+		}
+	],
+	"Blood Moon": [
+		{
+			"name": "Eclipse atlatl",
+			"d": 224,
+			"i": 29000
+		},
+		{
+			"name": "Eclipse moon helm",
+			"d": 224,
+			"i": 29010
+		},
+		{
+			"name": "Eclipse moon chestplate",
+			"d": 224,
+			"i": 29004
+		},
+		{
+			"name": "Eclipse moon tassets",
+			"d": 224,
+			"i": 29007
+		},
+		{
+			"name": "Dual macuahuitl",
+			"d": 224,
+			"i": 28997
+		},
+		{
+			"name": "Blood moon helm",
+			"d": 224,
+			"i": 29028
+		},
+		{
+			"name": "Blood moon chestplate",
+			"d": 224,
+			"i": 29022
+		},
+		{
+			"name": "Blood moon tassets",
+			"d": 224,
+			"i": 29025
+		},
+		{
+			"name": "Blue moon spear",
+			"d": 224,
+			"i": 28988
+		},
+		{
+			"name": "Blue moon helm",
+			"d": 224,
+			"i": 29019
+		},
+		{
+			"name": "Blue moon chestplate",
+			"d": 224,
+			"i": 29013
+		},
+		{
+			"name": "Blue moon tassets",
+			"d": 224,
+			"i": 29016
+		},
+		{
+			"name": "Atlatl dart",
+			"d": 1.5,
+			"i": 28991
+		},
+		{
+			"name": "Blessed bone shards",
+			"d": 2.95,
+			"i": 29381
+		},
+		{
+			"name": "Wyrmling bones",
+			"d": 5.43,
+			"i": 28899
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 2.13,
+			"i": 29378
+		},
+		{
+			"name": "Swamp tar",
+			"d": 1.74,
+			"i": 1939
+		},
+		{
+			"name": "Water orb",
+			"d": 2.95,
+			"i": 571
+		},
+		{
+			"name": "Supercompost",
+			"d": 2.13,
+			"i": 6034
+		},
+		{
+			"name": "Soft clay",
+			"d": 2.13,
+			"i": 1761
+		},
+		{
+			"name": "Grimy harralander",
+			"d": 2.13,
+			"i": 205
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 5.43,
+			"i": 209
+		},
+		{
+			"name": "Maple seed",
+			"d": 2.95,
+			"i": 5314
+		},
+		{
+			"name": "Yew seed",
+			"d": 5.43,
+			"i": 5315
+		}
+	],
+	"Blue Moon": [
+		{
+			"name": "Eclipse atlatl",
+			"d": 224,
+			"i": 29000
+		},
+		{
+			"name": "Eclipse moon helm",
+			"d": 224,
+			"i": 29010
+		},
+		{
+			"name": "Eclipse moon chestplate",
+			"d": 224,
+			"i": 29004
+		},
+		{
+			"name": "Eclipse moon tassets",
+			"d": 224,
+			"i": 29007
+		},
+		{
+			"name": "Dual macuahuitl",
+			"d": 224,
+			"i": 28997
+		},
+		{
+			"name": "Blood moon helm",
+			"d": 224,
+			"i": 29028
+		},
+		{
+			"name": "Blood moon chestplate",
+			"d": 224,
+			"i": 29022
+		},
+		{
+			"name": "Blood moon tassets",
+			"d": 224,
+			"i": 29025
+		},
+		{
+			"name": "Blue moon spear",
+			"d": 224,
+			"i": 28988
+		},
+		{
+			"name": "Blue moon helm",
+			"d": 224,
+			"i": 29019
+		},
+		{
+			"name": "Blue moon chestplate",
+			"d": 224,
+			"i": 29013
+		},
+		{
+			"name": "Blue moon tassets",
+			"d": 224,
+			"i": 29016
+		},
+		{
+			"name": "Atlatl dart",
+			"d": 1.5,
+			"i": 28991
+		},
+		{
+			"name": "Blessed bone shards",
+			"d": 2.95,
+			"i": 29381
+		},
+		{
+			"name": "Wyrmling bones",
+			"d": 5.43,
+			"i": 28899
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 2.13,
+			"i": 29378
+		},
+		{
+			"name": "Swamp tar",
+			"d": 1.74,
+			"i": 1939
+		},
+		{
+			"name": "Water orb",
+			"d": 2.95,
+			"i": 571
+		},
+		{
+			"name": "Supercompost",
+			"d": 2.13,
+			"i": 6034
+		},
+		{
+			"name": "Soft clay",
+			"d": 2.13,
+			"i": 1761
+		},
+		{
+			"name": "Grimy harralander",
+			"d": 2.13,
+			"i": 205
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 5.43,
+			"i": 209
+		},
+		{
+			"name": "Maple seed",
+			"d": 2.95,
+			"i": 5314
+		},
+		{
+			"name": "Yew seed",
+			"d": 5.43,
+			"i": 5315
+		}
+	],
+	"Eclipse Moon": [
+		{
+			"name": "Eclipse atlatl",
+			"d": 224,
+			"i": 29000
+		},
+		{
+			"name": "Eclipse moon helm",
+			"d": 224,
+			"i": 29010
+		},
+		{
+			"name": "Eclipse moon chestplate",
+			"d": 224,
+			"i": 29004
+		},
+		{
+			"name": "Eclipse moon tassets",
+			"d": 224,
+			"i": 29007
+		},
+		{
+			"name": "Dual macuahuitl",
+			"d": 224,
+			"i": 28997
+		},
+		{
+			"name": "Blood moon helm",
+			"d": 224,
+			"i": 29028
+		},
+		{
+			"name": "Blood moon chestplate",
+			"d": 224,
+			"i": 29022
+		},
+		{
+			"name": "Blood moon tassets",
+			"d": 224,
+			"i": 29025
+		},
+		{
+			"name": "Blue moon spear",
+			"d": 224,
+			"i": 28988
+		},
+		{
+			"name": "Blue moon helm",
+			"d": 224,
+			"i": 29019
+		},
+		{
+			"name": "Blue moon chestplate",
+			"d": 224,
+			"i": 29013
+		},
+		{
+			"name": "Blue moon tassets",
+			"d": 224,
+			"i": 29016
+		},
+		{
+			"name": "Atlatl dart",
+			"d": 1.5,
+			"i": 28991
+		},
+		{
+			"name": "Blessed bone shards",
+			"d": 2.95,
+			"i": 29381
+		},
+		{
+			"name": "Wyrmling bones",
+			"d": 5.43,
+			"i": 28899
+		},
+		{
+			"name": "Sun-kissed bones",
+			"d": 2.13,
+			"i": 29378
+		},
+		{
+			"name": "Swamp tar",
+			"d": 1.74,
+			"i": 1939
+		},
+		{
+			"name": "Water orb",
+			"d": 2.95,
+			"i": 571
+		},
+		{
+			"name": "Supercompost",
+			"d": 2.13,
+			"i": 6034
+		},
+		{
+			"name": "Soft clay",
+			"d": 2.13,
+			"i": 1761
+		},
+		{
+			"name": "Grimy harralander",
+			"d": 2.13,
+			"i": 205
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 5.43,
+			"i": 209
+		},
+		{
+			"name": "Maple seed",
+			"d": 2.95,
+			"i": 5314
+		},
+		{
+			"name": "Yew seed",
+			"d": 5.43,
+			"i": 5315
+		}
+	],
+	"The Gauntlet": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	],
+	"Gauntlet": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	],
+	"Crystalline Hunllef": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	]
+}

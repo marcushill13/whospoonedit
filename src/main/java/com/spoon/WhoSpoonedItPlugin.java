@@ -724,10 +724,14 @@ public class WhoSpoonedItPlugin extends Plugin
 		executor.execute(() ->
 		{
 			SpoonApi.Result<SpoonApi.Import> look =
-				api.importFromDiscord(config.serverUrl(), code, creatorToken, true);
+				api.importFromDiscord(config.serverUrl(), code, creatorToken, true,
+					running -> showProgress("Read " + count(running.getFound() + running.getSkipped())
+						+ " messages"));
 
 			SwingUtilities.invokeLater(() ->
 			{
+				showProgress("");
+
 				if (!look.ok())
 				{
 					warn(look.getError());
@@ -763,17 +767,21 @@ public class WhoSpoonedItPlugin extends Plugin
 				executor.execute(() ->
 				{
 					SpoonApi.Result<SpoonApi.Import> done =
-						api.importFromDiscord(config.serverUrl(), code, creatorToken, false);
+						api.importFromDiscord(config.serverUrl(), code, creatorToken, false,
+							running -> showProgress("Brought in " + count(running.getImported())
+								+ " drops"));
 
 					SwingUtilities.invokeLater(() ->
 					{
+						showProgress("");
+
 						if (!done.ok())
 						{
 							warn(done.getError());
 							return;
 						}
 
-						warn("Brought in " + done.getValue().getImported() + " drops.");
+						warn("Brought in " + count(done.getValue().getImported()) + " drops.");
 
 						// Whatever of that was this account's own belongs on the front screen too.
 						catchUpFromGroup(code);
@@ -782,6 +790,29 @@ public class WhoSpoonedItPlugin extends Plugin
 				});
 			});
 		});
+	}
+
+	/**
+	 * Says how far through the channel an import has got.
+	 *
+	 * A clan's Discord history takes as long as it takes to read, and a panel that sits there saying
+	 * nothing for a minute is one that gets pressed again, or closed.
+	 */
+	private void showProgress(String text)
+	{
+		SwingUtilities.invokeLater(() ->
+		{
+			if (openView != null)
+			{
+				openView.importProgress(text);
+			}
+		});
+	}
+
+	/** Thousands separated, because six thousand and sixty thousand look alike in a hurry. */
+	private static String count(int number)
+	{
+		return String.format("%,d", number);
 	}
 
 	/**
@@ -828,6 +859,17 @@ public class WhoSpoonedItPlugin extends Plugin
 			text.append(System.lineSeparator())
 				.append(found.getWithoutKillCount())
 				.append(" have no kill count, so they count but cannot be scored.");
+		}
+
+		if (found.getWithoutRate() > 0)
+		{
+			// Said apart from the above because it is a different hole and has a different answer: a
+			// missing kill count is gone for good, while a missing rate is a monster nothing has the
+			// odds for yet, and importing again once it does will fill it in.
+			text.append(System.lineSeparator())
+				.append(found.getWithoutRate())
+				.append(" are from something with no known drop rate, so they count but are not scored"
+					+ " yet.");
 		}
 
 		if (!found.getUnmatched().isEmpty())

@@ -58,6 +58,14 @@ public class GroupView extends JPanel
 	private Runnable onImport;
 
 	/**
+	 * How far through the Discord channel an import has got, under the button that started it.
+	 *
+	 * Built with the import section, so it is null until a creator opens the card the button is in,
+	 * which is also the only way anybody starts one.
+	 */
+	private JLabel importProgress;
+
+	/**
 	 * @param medal     builds a label carrying the spoon for a place; it fills itself once the game's
 	 *                  sprite has loaded
 	 * @param onSearch  given what was typed; results come back through {@link #showHolders}
@@ -286,6 +294,22 @@ public class GroupView extends JPanel
 	}
 
 	/** The code, shown large, it is what gets pasted into Discord and read back by hand. */
+	/**
+	 * Shows how an import is getting on. Empty puts the line away again.
+	 */
+	public void importProgress(String text)
+	{
+		if (importProgress == null)
+		{
+			return;
+		}
+
+		importProgress.setText(text);
+		importProgress.setVisible(!text.isEmpty());
+		revalidate();
+		repaint();
+	}
+
 	private JPanel codeCard()
 	{
 		JPanel card = Cards.card();
@@ -314,6 +338,14 @@ public class GroupView extends JPanel
 			go.setAlignmentX(Component.LEFT_ALIGNMENT);
 			go.addActionListener(event -> onImport.run());
 			card.add(go);
+
+			// Reading a channel of any size takes a while, and it is read in pieces, so there is
+			// something true to say the whole time it is happening.
+			importProgress = Cards.muted("");
+			importProgress.setAlignmentX(Component.LEFT_ALIGNMENT);
+			importProgress.setVisible(false);
+			card.add(Cards.gap(2));
+			card.add(importProgress);
 		}
 
 		card.add(Cards.gap(8));
