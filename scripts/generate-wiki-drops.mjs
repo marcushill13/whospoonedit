@@ -30,7 +30,9 @@ const OUT = 'src/main/resources/com/spoon/extra-drops.json';
 const MISSING = [
 	{ page: 'Grotesque Guardians', as: ['Grotesque Guardians', 'Dusk', 'Dawn'] },
 	{ page: 'The Hueycoatl', as: ['The Hueycoatl', 'Hueycoatl'] },
-	{ page: 'Wintertodt', as: ['Wintertodt', 'Supply crate'] },
+	// The Wintertodt page states no drops of its own: what it gives comes out of a supply crate, and
+	// the crate has the table.
+	{ page: 'Supply crate', as: ['Wintertodt', 'Supply crate'] },
 	{ page: 'Tempoross', as: ['Tempoross', 'Reward pool'] }
 ];
 

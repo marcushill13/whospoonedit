@@ -35,7 +35,13 @@ CREATE TABLE IF NOT EXISTS groups (
 
 	-- The newest message a finished sweep saw. A later sweep stops here rather than reading a year of
 	-- history again to find last week's drops.
-	discord_read_through INTEGER
+	discord_read_through INTEGER,
+
+	-- Which rate data that sweep was scored against.
+	--
+	-- When it changes, the mark above is ignored for one sweep and the channel is read again, because
+	-- drops that could not be scored then can be now and nothing else would ever go back for them.
+	discord_scored_with TEXT
 );
 
 CREATE TABLE IF NOT EXISTS members (

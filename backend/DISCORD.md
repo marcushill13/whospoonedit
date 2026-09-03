@@ -60,8 +60,21 @@ it until the channel is finished, which is why the panel counts up rather than s
 too old to know about cursors is not left out: the service keeps its place in the channel instead, and
 each press of the button moves it on a chunk.
 
-That place is kept in three columns added to `groups`. A database made before them needs them:
+That place is kept in columns added to `groups`. A database made before them needs them:
 
 ```
 wrangler d1 execute spoons --remote --file=migrations/001-import-in-chunks.sql
+wrangler d1 execute spoons --remote --file=migrations/002-rescore-when-the-rates-change.sql
 ```
+
+## Why an import sometimes reads it all again
+
+A finished sweep leaves a mark saying how far through the channel it read, so the next one picks up
+only what is new rather than reading a year of history to find last week's drops.
+
+That mark is stamped with the rate data it was scored against. When that data changes, a group has
+drops in it that could not be scored then and can be now, and nothing else would ever go back for
+them, so the next import ignores the mark and reads the channel again once. Nothing comes in twice:
+a drop already there has its gaps filled in and its known values left alone.
+
+Which means improving the rates is enough. There is no button to press and no table to clear.

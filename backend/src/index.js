@@ -19,7 +19,7 @@ import {
 	registerCommands,
 	verifySignature
 } from './discord.js';
-import rates from './rates.js';
+import rates, { version as RATES } from './rates.js';
 
 /** Codes people read aloud, so no O/0 or I/1. */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -514,6 +514,13 @@ async function importFromDiscord(code, request, env)
 	const paged = body?.paged === true;
 	const startingOut = paged ? !body?.cursor : !group.discord_cursor;
 
+	// A group brought in against older rate data has drops in it that could not be scored then and can
+	// be now, and nothing would ever go back for them: a finished import leaves a mark saying how far
+	// it read, and later ones start from there. So when the data has changed underneath it, the mark is
+	// ignored and the channel is read again, once. The sweep stamps the new version when it finishes,
+	// which is what stops it happening every time.
+	const rescoring = group.discord_scored_with !== RATES;
+
 	// Where this read stopped, and whether any channel is left behind it. Handed back so a plugin that
 	// can carry on knows to, and a file export, which arrives whole, is already finished.
 	let chunk = { before: null, done: true };
@@ -548,7 +555,7 @@ async function importFromDiscord(code, request, env)
 
 				// A finished sweep leaves a high-water mark behind it, so bringing in a clan's whole
 				// history once does not mean reading all of it again to pick up this week's drops.
-				notBefore: group.discord_read_through ?? 0
+				notBefore: rescoring ? 0 : (group.discord_read_through ?? 0)
 			});
 
 			messages = chunk.messages;
@@ -800,9 +807,13 @@ async function rememberPlace(code, { paged, startingOut, chunk, messages }, env)
 	{
 		await env.DB.prepare(
 			'UPDATE groups SET discord_cursor = NULL, discord_sweep_newest = NULL,' +
-			' discord_read_through = COALESCE(?, discord_sweep_newest, discord_read_through)' +
+			' discord_read_through = COALESCE(?, discord_sweep_newest, discord_read_through),' +
+
+			// Stamped only on a finished sweep. Stamping it earlier would stop a sweep that gave out
+			// halfway from ever reading the half it never got to.
+			' discord_scored_with = ?' +
 			' WHERE code = ?')
-			.bind(newest, code)
+			.bind(newest, RATES, code)
 			.run();
 
 		return;
