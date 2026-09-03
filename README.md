@@ -68,6 +68,11 @@ button in the plugin. The bot asks for View Channel and Read Message History and
 never reads anything until that button is pressed. What it found is shown before anything is kept,
 including any names in the channel that are not in your group, which are ignored.
 
+A channel of any size is read in pieces, with a count of how far it has got, because a clan with years
+of Dink messages has more history than can be read in one go. That is one press however deep the
+channel is. A read that gives out partway says what it managed, and going again brings in the rest
+rather than a second copy of what is already in.
+
 ## What this sends, and to whom
 
 The plugin talks to a small service so a group can see the same leaderboard. A RuneLite plugin only

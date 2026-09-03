@@ -45,3 +45,23 @@ The application is at https://discord.com/developers.
 3. In the plugin, as the group's creator: **Import from Discord**
 
 Nothing is read until step 3, and the import shows what it found before it commits to anything.
+
+A group is linked to one channel at a time, so a second server is `/spoons link` and import again.
+Nothing already brought in comes in twice: drops are keyed on Discord's own message ids.
+
+## Why a channel is read in pieces
+
+A clan's whole history is more than one answer can carry. The plugin waits ten seconds before it
+decides the service has died, and a Worker may only make fifty subrequests while answering one
+request, of which every hundred messages of history is one.
+
+So a read is bounded, by pages and by the clock, and hands back a cursor. The plugin asks again with
+it until the channel is finished, which is why the panel counts up rather than sitting still. A plugin
+too old to know about cursors is not left out: the service keeps its place in the channel instead, and
+each press of the button moves it on a chunk.
+
+That place is kept in three columns added to `groups`. A database made before them needs them:
+
+```
+wrangler d1 execute spoons --remote --file=migrations/001-import-in-chunks.sql
+```

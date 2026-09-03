@@ -12,7 +12,7 @@
 
 import { parseDinkMessages } from './dink.js';
 import {
-	fetchChannelHistory,
+	readChannelChunk,
 	handleInteraction,
 	inviteUrl,
 	registerCommands,
@@ -501,6 +501,21 @@ async function importFromDiscord(code, request, env)
 	// for the linked channel is how the bot works.
 	let messages = body?.messages;
 
+	// An export arrives whole and in whatever order the tool wrote it, so it says nothing about how
+	// far through the channel anybody is and must not be allowed to move the place.
+	const fromExport = Array.isArray(messages);
+
+	// A channel is read a chunk at a time, so who holds the place in it has to be settled. A plugin
+	// that knows about chunks sends its own cursor and drives the loop itself; one that does not gets
+	// the cursor kept here, and moves on a chunk each time somebody presses the button. Either way the
+	// channel is read the same way, and only the pressing differs.
+	const paged = body?.paged === true;
+	const startingOut = paged ? !body?.cursor : !group.discord_cursor;
+
+	// Where this read stopped, and whether any channel is left behind it. Handed back so a plugin that
+	// can carry on knows to, and a file export, which arrives whole, is already finished.
+	let chunk = { before: null, done: true };
+
 	if (!Array.isArray(messages))
 	{
 		if (!group.discord_channel_id)
@@ -522,13 +537,21 @@ async function importFromDiscord(code, request, env)
 
 		try
 		{
-			messages = await fetchChannelHistory(group.discord_channel_id, env.DISCORD_BOT_TOKEN);
+			chunk = await readChannelChunk(group.discord_channel_id, env.DISCORD_BOT_TOKEN, {
+				before: paged ? (body?.cursor ?? null) : (group.discord_cursor ?? null),
+
+				// A finished sweep leaves a high-water mark behind it, so bringing in a clan's whole
+				// history once does not mean reading all of it again to pick up this week's drops.
+				notBefore: group.discord_read_through ?? 0
+			});
+
+			messages = chunk.messages;
 		}
 		catch (error)
 		{
 			console.error(error);
 			return json({
-				error: 'Could not read that channel. ' + error.message,
+				error: whyDiscordRefused(error),
 				channelId: group.discord_channel_id
 			}, 502);
 		}
@@ -582,7 +605,16 @@ async function importFromDiscord(code, request, env)
 	// import that silently drops a third of a channel is one nobody would trust afterwards.
 	if (body?.dryRun)
 	{
-		return json({ ...summary, imported: 0, dryRun: true });
+		// A dry run leaves the place in the channel where it was: what it has just described is
+		// what the next press brings in. The exception is a stretch holding nothing for this
+		// group, which is stepped over rather than offered again, since there is nothing in it
+		// to keep and a plugin that presses once per chunk would otherwise never get past it.
+		if (!fromExport && matched.length === 0 && !chunk.done)
+		{
+			await rememberPlace(code, { paged, startingOut, chunk, messages }, env);
+		}
+
+		return json({ ...summary, imported: 0, dryRun: true, cursor: chunk.before, done: chunk.done });
 	}
 
 	const now = Date.now();
@@ -621,11 +653,84 @@ async function importFromDiscord(code, request, env)
 		await refreshTotals(code, rsn, env);
 	}
 
+	if (!fromExport)
+	{
+		await rememberPlace(code, { paged, startingOut, chunk, messages }, env);
+	}
+
 	return json({
 		...summary,
 		imported: matched.length,
+		cursor: chunk.before,
+		done: chunk.done,
 		leaderboard: await leaderboardFor(code, env)
 	});
+}
+
+/**
+ * Keeps the place in a channel that is being read a chunk at a time.
+ *
+ * The cursor is only for a plugin that does not hold its own: it presses the button again and carries
+ * on from here. What is kept for every plugin is the high-water mark, the newest message a finished
+ * sweep saw, so that the next sweep stops as soon as it reaches ground already covered.
+ *
+ * That mark has to be taken at the start of a sweep, while the newest message is still in front of
+ * us. By the end we are years down the channel, where the newest thing in the last chunk read is the
+ * oldest thing in the channel.
+ */
+async function rememberPlace(code, { paged, startingOut, chunk, messages }, env)
+{
+	const newest = startingOut && messages.length > 0
+		? Date.parse(messages[0].timestamp ?? '') || null
+		: null;
+
+	if (chunk.done)
+	{
+		await env.DB.prepare(
+			'UPDATE groups SET discord_cursor = NULL, discord_sweep_newest = NULL,' +
+			' discord_read_through = COALESCE(?, discord_sweep_newest, discord_read_through)' +
+			' WHERE code = ?')
+			.bind(newest, code)
+			.run();
+
+		return;
+	}
+
+	// A paged plugin holds its own cursor, and storing a second one here would leave two places in
+	// the channel disagreeing about where the reading had got to.
+	await env.DB.prepare(
+		'UPDATE groups SET discord_cursor = ?,' +
+		' discord_sweep_newest = COALESCE(?, discord_sweep_newest) WHERE code = ?')
+		.bind(paged ? null : chunk.before, newest, code)
+		.run();
+}
+
+/**
+ * Which of Discord's refusals this is, said in the words that fit it.
+ *
+ * They call for opposite fixes and only one of them is about the channel. A rejected token is the
+ * service's own, which nobody but whoever deployed it can put right, and telling them the channel
+ * could not be read sends them off inspecting permissions that were never the problem.
+ */
+function whyDiscordRefused(error)
+{
+	switch (error?.status)
+	{
+		case 401:
+			return 'This service\'s Discord bot token has been rejected, so nothing can be read from '
+				+ 'Discord at all. Whoever runs the service needs to set a new one. Nothing about your '
+				+ 'group or your channel is wrong.';
+
+		case 403:
+			return 'The bot cannot see that channel. It needs View Channel and Read Message History in '
+				+ 'it.';
+
+		case 404:
+			return 'That channel is gone. Run /spoons link again in the channel you want read.';
+
+		default:
+			return 'Could not read that channel. ' + (error?.message ?? '');
+	}
 }
 
 /**

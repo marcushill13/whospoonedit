@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.Value;
@@ -37,12 +40,26 @@ public class SpoonApi
 	private static final MediaType JSON = MediaType.get("application/json");
 
 	private final OkHttpClient httpClient;
+
+	/**
+	 * The client for reading Discord history, which is the one call here allowed to take a while.
+	 * <p>
+	 * RuneLite's shared client carries OkHttp's default ten second read timeout. That is right for
+	 * every other call in this file and wrong for this one: the service is reading somebody's Discord
+	 * channel, and a chunk of it that takes eleven seconds is not a service that has died. Everything
+	 * else, the connection pool included, is still shared.
+	 */
+	private final OkHttpClient importClient;
+
 	private final Gson gson;
 
 	@Inject
 	private SpoonApi(OkHttpClient httpClient, Gson gson)
 	{
 		this.httpClient = httpClient;
+		this.importClient = httpClient.newBuilder()
+			.readTimeout(30, TimeUnit.SECONDS)
+			.build();
 		this.gson = gson;
 	}
 
@@ -146,15 +163,143 @@ public class SpoonApi
 	}
 
 	/**
-	 * Asks the service to read the group's linked Discord channel.
+	 * How many chunks one press may read, against a service that never says it has finished.
 	 *
-	 * @param dryRun report what would happen without doing it, which is what the plugin shows first
+	 * Four hundred of them is the best part of a million messages, which no clan has, so reaching
+	 * this means something has gone wrong rather than that somebody talks a lot.
+	 */
+	private static final int CHUNK_LIMIT = 400;
+
+	/**
+	 * Reads the group's linked Discord channel to its end, and adds up what was in it.
+	 *
+	 * The service answers a chunk at a time, because reading a clan's whole history into one answer
+	 * takes longer than this plugin waits for one, and more of a Worker's allowance than it is given.
+	 * That is a fact about the asking rather than about the importing, so it is kept in here: one call
+	 * still reads the whole channel.
+	 *
+	 * @param dryRun   report what would happen without doing it, which is what the plugin shows first
+	 * @param progress given the running totals after each chunk, so that a long read can say how it is
+	 *                 getting on instead of sitting there silently
 	 */
 	public Result<Import> importFromDiscord(
-		String baseUrl, String code, String creatorToken, boolean dryRun)
+		String baseUrl, String code, String creatorToken, boolean dryRun, Consumer<Import> progress)
+	{
+		return readChannel(dryRun, progress,
+			cursor -> importChunk(baseUrl, code, creatorToken, dryRun, cursor));
+	}
+
+	/**
+	 * The reading itself, told only how to ask for one chunk.
+	 *
+	 * Kept apart from what it is asking so that carrying on, adding up and giving up can be tried
+	 * without a Discord, a service or a network behind them.
+	 */
+	static Result<Import> readChannel(
+		boolean dryRun, Consumer<Import> progress, Function<String, Result<Import>> read)
+	{
+		Import total = new Import();
+		String cursor = null;
+
+		for (int chunk = 0; chunk < CHUNK_LIMIT; chunk++)
+		{
+			Result<Import> result = read.apply(cursor);
+
+			if (!result.ok())
+			{
+				// Nothing already brought in is lost by stopping here. Drops are keyed on Discord's own
+				// message ids, so going again reads what this run did not, rather than a second copy of
+				// what it did.
+				return chunk == 0
+					? result
+					: Result.failed(stoppedEarly(total, dryRun, result.getError()));
+			}
+
+			Import part = result.getValue();
+
+			// No bot in the server is the step before this one, and it is the whole answer.
+			if (part == null || part.isNeedsBot())
+			{
+				return result;
+			}
+
+			add(total, part);
+
+			if (progress != null)
+			{
+				progress.accept(total);
+			}
+
+			cursor = part.getCursor();
+
+			// A service that hands back no cursor read the channel in one go, which is also what an
+			// older one that has never heard of chunks does.
+			if (part.isDone() || cursor == null)
+			{
+				break;
+			}
+		}
+
+		return Result.of(total);
+	}
+
+	/** What each chunk adds to the running totals. */
+	private static void add(Import total, Import part)
+	{
+		total.setFound(total.getFound() + part.getFound());
+		total.setSkipped(total.getSkipped() + part.getSkipped());
+		total.setMatched(total.getMatched() + part.getMatched());
+		total.setImported(total.getImported() + part.getImported());
+		total.setWithoutKillCount(total.getWithoutKillCount() + part.getWithoutKillCount());
+		total.setDone(part.isDone());
+		total.setCursor(part.getCursor());
+
+		if (part.getUnmatched() == null)
+		{
+			return;
+		}
+
+		for (java.util.Map.Entry<String, Integer> entry : part.getUnmatched().entrySet())
+		{
+			total.getUnmatched().merge(entry.getKey(), entry.getValue(), Integer::sum);
+		}
+	}
+
+	/**
+	 * Said when a read gives out partway through a channel.
+	 *
+	 * What it managed is worth saying. Half a clan's history is not nothing, and the difference
+	 * between "that failed" and "that got four hundred in, go again for the rest" is the difference
+	 * between somebody giving up on it and somebody pressing the button.
+	 */
+	private static String stoppedEarly(Import total, boolean dryRun, String error)
+	{
+		String far = dryRun
+			? "Read " + String.format("%,d", total.getFound() + total.getSkipped()) + " messages"
+			: "Brought in " + String.format("%,d", total.getImported()) + " drops";
+
+		return far + ", then stopped: " + error + System.lineSeparator()
+			+ "Look for history again to bring in the rest. Nothing already in is brought in twice.";
+	}
+
+	/**
+	 * One chunk of it.
+	 *
+	 * @param cursor where the last chunk stopped, or null to start at the newest message
+	 */
+	private Result<Import> importChunk(
+		String baseUrl, String code, String creatorToken, boolean dryRun, String cursor)
 	{
 		JsonObject body = new JsonObject();
 		body.addProperty("dryRun", dryRun);
+
+		// Says this plugin holds its own place in the channel, so the service does not keep one for it.
+		body.addProperty("paged", true);
+
+		if (cursor != null)
+		{
+			body.addProperty("cursor", cursor);
+		}
 
 		Request request = new Request.Builder()
 			.url(url(baseUrl, "v1", "groups", code, "import"))
@@ -162,7 +307,7 @@ public class SpoonApi
 			.header("X-Creator-Token", creatorToken)
 			.build();
 
-		try (Response response = httpClient.newCall(request).execute())
+		try (Response response = importClient.newCall(request).execute())
 		{
 			ResponseBody responseBody = response.body();
 			String text = responseBody == null ? "" : responseBody.string();
@@ -225,6 +370,12 @@ public class SpoonApi
 
 		/** What to type once the bot is in, with the group's own code already in it. */
 		private String linkCommand;
+
+		/** Where this chunk of the channel stopped, to be handed back to carry on from there. */
+		private String cursor;
+
+		/** Whether the channel has been read all the way to its end. */
+		private boolean done;
 	}
 
 	/**

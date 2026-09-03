@@ -20,7 +20,22 @@ CREATE TABLE IF NOT EXISTS groups (
 	-- Only ever which channel. Whether that channel may be read is decided by the plugin, where the
 	-- creator token is: a slash command cannot prove who typed it, because Discord knows a Discord
 	-- account and not a RuneScape one.
-	discord_channel_id TEXT
+	discord_channel_id TEXT,
+
+	-- Where a Discord read has got to, for a plugin that does not carry its own cursor.
+	--
+	-- A channel is read in chunks, because reading a clan's whole history in one answer takes longer
+	-- than the plugin waits and more subrequests than a Worker is given. A plugin that knows about
+	-- chunks drives the loop itself and never touches these; an older one advances one chunk per press,
+	-- and this is what remembers where it was between presses.
+	discord_cursor TEXT,
+
+	-- The newest message a sweep in progress saw, taken at its start and promoted below when it ends.
+	discord_sweep_newest INTEGER,
+
+	-- The newest message a finished sweep saw. A later sweep stops here rather than reading a year of
+	-- history again to find last week's drops.
+	discord_read_through INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS members (
