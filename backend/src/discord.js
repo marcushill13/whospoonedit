@@ -27,6 +27,16 @@ const PAGES_PER_CHUNK = 20;
 const CHUNK_MILLIS = 6000;
 
 /**
+ * What a read gets when what it finds is going to be written as well.
+ *
+ * A look at the channel spends the whole ten seconds the plugin waits on reading. Bringing it in has
+ * to pay for the writing too, out of the same ten, so it reads less far each time and is asked more
+ * often. Which is invisible to a plugin that drives the loop itself, and a few more presses for one
+ * that does not.
+ */
+export const WRITING = { pages: 12, millis: 3500 };
+
+/**
  * Checks that a request really came from Discord.
  *
  * Discord signs every interaction, and refuses to register an endpoint that does not reject a bad
@@ -74,15 +84,18 @@ export async function verifySignature(request, body, publicKey)
  *
  * @param before message id to carry on from, or null to start at the newest
  * @param notBefore stop once messages are older than this, so a later sweep reads only what is new
+ * @param pages how many pages this read may take, for a caller with work of its own to do after it
+ * @param millis and how long it may spend taking them
  * @returns {{messages: Array, before: string|null, done: boolean}}
  */
-export async function readChannelChunk(channelId, botToken, { before = null, notBefore = 0 } = {})
+export async function readChannelChunk(channelId, botToken,
+	{ before = null, notBefore = 0, pages = PAGES_PER_CHUNK, millis = CHUNK_MILLIS } = {})
 {
 	const messages = [];
 	const startedAt = Date.now();
 	let cursor = before;
 
-	for (let page = 0; page < PAGES_PER_CHUNK; page++)
+	for (let page = 0; page < pages; page++)
 	{
 		const url = new URL(`${DISCORD_API}/channels/${channelId}/messages`);
 		url.searchParams.set('limit', String(PAGE));
@@ -151,7 +164,7 @@ export async function readChannelChunk(channelId, botToken, { before = null, not
 			return { messages, before: null, done: true };
 		}
 
-		if (Date.now() - startedAt >= CHUNK_MILLIS)
+		if (Date.now() - startedAt >= millis)
 		{
 			break;
 		}

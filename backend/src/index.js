@@ -13,6 +13,7 @@
 import { parseDinkMessages } from './dink.js';
 import {
 	readChannelChunk,
+	WRITING,
 	handleInteraction,
 	inviteUrl,
 	registerCommands,
@@ -540,6 +541,10 @@ async function importFromDiscord(code, request, env)
 			chunk = await readChannelChunk(group.discord_channel_id, env.DISCORD_BOT_TOKEN, {
 				before: paged ? (body?.cursor ?? null) : (group.discord_cursor ?? null),
 
+				// A look spends the whole answer on reading. Bringing it in has the writing to pay for
+				// out of the same ten seconds, so it does not read as far in one go.
+				...(body?.dryRun ? {} : WRITING),
+
 				// A finished sweep leaves a high-water mark behind it, so bringing in a clan's whole
 				// history once does not mean reading all of it again to pick up this week's drops.
 				notBefore: group.discord_read_through ?? 0
@@ -648,10 +653,7 @@ async function importFromDiscord(code, request, env)
 		}));
 	}
 
-	for (const rsn of touched)
-	{
-		await refreshTotals(code, rsn, env);
-	}
+	await refreshTotalsFor(code, [...touched], env);
 
 	if (!fromExport)
 	{
@@ -665,6 +667,37 @@ async function importFromDiscord(code, request, env)
 		done: chunk.done,
 		leaderboard: await leaderboardFor(code, env)
 	});
+}
+
+/**
+ * Rebuilds the running totals of everyone an import touched, in one statement.
+ *
+ * One member at a time is right for a drop landing on its own and wrong here. An import touches the
+ * whole group at once, and a round trip each is both slow enough to lose the plugin's patience partway
+ * through and enough subrequests to run a Worker out of its allowance.
+ *
+ * The figures are the ones refreshTotals works out, said in SQL: how many scored drops, how many of
+ * them were luckier than the middle, and the mean share across them.
+ */
+async function refreshTotalsFor(code, names, env)
+{
+	if (names.length === 0)
+	{
+		return;
+	}
+
+	const half = SHARE_SCALE / 2;
+	const theirs = 'FROM drops WHERE group_code = members.group_code AND rsn = members.rsn'
+		+ ' AND share IS NOT NULL';
+
+	await env.DB.prepare(
+		'UPDATE members SET' +
+		' spoons = (SELECT COALESCE(SUM(CASE WHEN share < ? THEN 1 ELSE 0 END), 0) ' + theirs + '),' +
+		' scored = (SELECT COUNT(*) ' + theirs + '),' +
+		' avg_share = (SELECT CAST(ROUND(COALESCE(AVG(share), ?)) AS INTEGER) ' + theirs + ')' +
+		' WHERE group_code = ? AND rsn IN (' + names.map(() => '?').join(', ') + ')')
+		.bind(half, half, code, ...names)
+		.run();
 }
 
 /**
