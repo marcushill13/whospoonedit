@@ -44,21 +44,25 @@ const MISSING = [
 		as: ['Lunar Chest', 'Moons of Peril', 'Blood Moon', 'Blue Moon', 'Eclipse Moon']
 	},
 
-	// The two Gauntlets are read from their bosses rather than from the one page that describes both.
-	// That page states the corrupted rates, so taking it for the normal Gauntlet scored a Youngllef
-	// against one in eight hundred when the normal one is one in two thousand: not a missing number
-	// but a wrong one, which is worse.
+	// The Gauntlet page describes both variants at once, and where an item is on it twice the likelier
+	// row is taken, which is the corrupted one every time. So what that page yields is corrupted rates,
+	// and it is filed as corrupted only.
+	//
+	// The normal Gauntlet is deliberately not claimed from it. Scoring a Youngllef against one in eight
+	// hundred when the normal one is one in two thousand is not a gap, it is a wrong number, and
+	// nothing about a wrong number looks wrong on the board. It stays unscored until there is a page
+	// that states the normal rates on their own.
 	{
-		pages: ['Crystalline Hunllef', 'The Gauntlet'],
-		as: ['The Gauntlet', 'Gauntlet', 'Crystalline Hunllef']
-	},
-	{
-		pages: ['Corrupted Hunllef', 'Corrupted Gauntlet'],
-		as: ['Corrupted Gauntlet', 'Corrupted Hunllef']
+		pages: ['The Corrupted Gauntlet', 'Corrupted Hunllef', 'The Gauntlet'],
+		as: ['Corrupted Gauntlet', 'Corrupted Hunllef', 'The Corrupted Gauntlet']
 	},
 
-	// The Colosseum's rewards are the last boss's drops, not the arena's.
-	{ pages: ['Sol Heredit', 'Fortis Colosseum'], as: ['Fortis Colosseum', 'Sol Heredit'] },
+	// The Colosseum's rewards are the last boss's drops rather than the arena's, if either page states
+	// them at all.
+	{
+		pages: ['Sol Heredit', 'Fortis Colosseum', 'Colosseum'],
+		as: ['Fortis Colosseum', 'Sol Heredit', 'Colosseum']
+	},
 
 	{
 		pages: ['Royal Titans', 'The Royal Titans', 'Branda the Fire Queen'],
@@ -210,6 +214,17 @@ async function main(pages)
 
 	const ids = await itemIds();
 	const out = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
+
+	// Everything about to be asked for is cleared first, so a source that stops reading leaves nothing
+	// rather than yesterday's answer. A page that gets renamed, or a rate that turns out to have been
+	// the wrong variant's, would otherwise sit in the file for ever with nothing to dislodge it.
+	for (const { as } of wanted)
+	{
+		for (const name of as)
+		{
+			delete out[name];
+		}
+	}
 
 	for (const { pages: candidates, as } of wanted)
 	{
