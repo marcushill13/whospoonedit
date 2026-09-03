@@ -213,18 +213,17 @@ async function main(pages)
 		: MISSING;
 
 	const ids = await itemIds();
-	const out = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {};
 
-	// Everything about to be asked for is cleared first, so a source that stops reading leaves nothing
-	// rather than yesterday's answer. A page that gets renamed, or a rate that turns out to have been
-	// the wrong variant's, would otherwise sit in the file for ever with nothing to dislodge it.
-	for (const { as } of wanted)
-	{
-		for (const name of as)
-		{
-			delete out[name];
-		}
-	}
+	// A full run writes the file rather than adding to it, so what is in it is exactly what was asked
+	// for and read this time. Clearing only the sources still being asked for was not enough: dropping
+	// a source from the list entirely left nothing to clear its old rows, which is how the normal
+	// Gauntlet's corrupted rates survived being deliberately removed.
+	//
+	// A run naming its own pages still adds to what is there, since it is asking about one thing and
+	// says nothing either way about the rest.
+	const out = pages.length > 0 && existsSync(OUT)
+		? JSON.parse(readFileSync(OUT, 'utf8'))
+		: {};
 
 	for (const { pages: candidates, as } of wanted)
 	{
