@@ -1,4 +1,100 @@
 {
+	"The Gauntlet": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	],
+	"Gauntlet": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	],
+	"Crystalline Hunllef": [
+		{
+			"name": "Crystal shard",
+			"d": 1,
+			"i": 23962
+		},
+		{
+			"name": "Crystal weapon seed",
+			"d": 50,
+			"i": 4207
+		},
+		{
+			"name": "Crystal armour seed",
+			"d": 50,
+			"i": 23956
+		},
+		{
+			"name": "Enhanced crystal weapon seed",
+			"d": 400,
+			"i": 25859
+		},
+		{
+			"name": "Youngllef",
+			"d": 800,
+			"i": 23757
+		},
+		{
+			"name": "Gauntlet cape",
+			"d": 1,
+			"i": 23859
+		}
+	],
 	"Grotesque Guardians": [
 		{
 			"name": "Granite dust",
@@ -1694,7 +1790,7 @@
 			"i": 5315
 		}
 	],
-	"The Gauntlet": [
+	"Corrupted Gauntlet": [
 		{
 			"name": "Crystal shard",
 			"d": 1,
@@ -1726,7 +1822,7 @@
 			"i": 23859
 		}
 	],
-	"Gauntlet": [
+	"Corrupted Hunllef": [
 		{
 			"name": "Crystal shard",
 			"d": 1,
@@ -1758,7 +1854,7 @@
 			"i": 23859
 		}
 	],
-	"Crystalline Hunllef": [
+	"The Corrupted Gauntlet": [
 		{
 			"name": "Crystal shard",
 			"d": 1,
@@ -1788,6 +1884,1006 @@
 			"name": "Gauntlet cape",
 			"d": 1,
 			"i": 23859
+		}
+	],
+	"The Royal Titans": [
+		{
+			"name": "Desiccated page",
+			"d": 1
+		},
+		{
+			"name": "Fire element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Mystic vigour prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Giantsoul amulet",
+			"d": 16
+		},
+		{
+			"name": "Mystic fire staff",
+			"d": 14,
+			"i": 1401
+		},
+		{
+			"name": "Fire battlestaff",
+			"d": 14,
+			"i": 1393
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 14,
+			"i": 1093
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 14,
+			"i": 1333
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 14,
+			"i": 1275
+		},
+		{
+			"name": "Fire rune",
+			"d": 14,
+			"i": 554
+		},
+		{
+			"name": "Chaos rune",
+			"d": 14,
+			"i": 562
+		},
+		{
+			"name": "Death rune",
+			"d": 14,
+			"i": 560
+		},
+		{
+			"name": "Nature rune",
+			"d": 14,
+			"i": 561
+		},
+		{
+			"name": "Law rune",
+			"d": 14,
+			"i": 563
+		},
+		{
+			"name": "Soul rune",
+			"d": 14,
+			"i": 566
+		},
+		{
+			"name": "Blood rune",
+			"d": 14,
+			"i": 565
+		},
+		{
+			"name": "Rune arrow",
+			"d": 14,
+			"i": 892
+		},
+		{
+			"name": "Coal",
+			"d": 14,
+			"i": 453
+		},
+		{
+			"name": "Gold ore",
+			"d": 14,
+			"i": 444
+		},
+		{
+			"name": "Fire orb",
+			"d": 14,
+			"i": 569
+		},
+		{
+			"name": "Grimy avantoe",
+			"d": 14,
+			"i": 211
+		},
+		{
+			"name": "Grimy cadantine",
+			"d": 14,
+			"i": 215
+		},
+		{
+			"name": "Grimy dwarf weed",
+			"d": 14,
+			"i": 217
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 14,
+			"i": 209
+		},
+		{
+			"name": "Grimy kwuarm",
+			"d": 14,
+			"i": 213
+		},
+		{
+			"name": "Grimy lantadyme",
+			"d": 14,
+			"i": 2485
+		},
+		{
+			"name": "Grimy ranarr weed",
+			"d": 14,
+			"i": 207
+		},
+		{
+			"name": "Maple seed",
+			"d": 27.75,
+			"i": 5314
+		},
+		{
+			"name": "Palm tree seed",
+			"d": 27.75,
+			"i": 5289
+		},
+		{
+			"name": "Yew seed",
+			"d": 27.75,
+			"i": 5315
+		},
+		{
+			"name": "Coins",
+			"d": 14,
+			"i": 617
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 14,
+			"i": 2434
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 25,
+			"i": 2722
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 100,
+			"i": 12073
+		},
+		{
+			"name": "Bran",
+			"d": 3000
+		},
+		{
+			"name": "Ice element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Deadeye prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Mystic water staff",
+			"d": 14.25,
+			"i": 1403
+		},
+		{
+			"name": "Water battlestaff",
+			"d": 14.25,
+			"i": 1395
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.25,
+			"i": 1079
+		},
+		{
+			"name": "Rune sq shield",
+			"d": 14.25,
+			"i": 1185
+		},
+		{
+			"name": "Rune axe",
+			"d": 14.25,
+			"i": 1359
+		},
+		{
+			"name": "Water rune",
+			"d": 14.25,
+			"i": 555
+		},
+		{
+			"name": "Water orb",
+			"d": 14.25,
+			"i": 571
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 14.25,
+			"i": 5298
+		},
+		{
+			"name": "Cadantine seed",
+			"d": 14.25,
+			"i": 5301
+		},
+		{
+			"name": "Dwarf weed seed",
+			"d": 14.25,
+			"i": 5303
+		},
+		{
+			"name": "Irit seed",
+			"d": 14.25,
+			"i": 5297
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 14.25,
+			"i": 5299
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 14.25,
+			"i": 5302
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 14.25,
+			"i": 5295
+		}
+	],
+	"Royal Titans": [
+		{
+			"name": "Desiccated page",
+			"d": 1
+		},
+		{
+			"name": "Fire element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Mystic vigour prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Giantsoul amulet",
+			"d": 16
+		},
+		{
+			"name": "Mystic fire staff",
+			"d": 14,
+			"i": 1401
+		},
+		{
+			"name": "Fire battlestaff",
+			"d": 14,
+			"i": 1393
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 14,
+			"i": 1093
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 14,
+			"i": 1333
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 14,
+			"i": 1275
+		},
+		{
+			"name": "Fire rune",
+			"d": 14,
+			"i": 554
+		},
+		{
+			"name": "Chaos rune",
+			"d": 14,
+			"i": 562
+		},
+		{
+			"name": "Death rune",
+			"d": 14,
+			"i": 560
+		},
+		{
+			"name": "Nature rune",
+			"d": 14,
+			"i": 561
+		},
+		{
+			"name": "Law rune",
+			"d": 14,
+			"i": 563
+		},
+		{
+			"name": "Soul rune",
+			"d": 14,
+			"i": 566
+		},
+		{
+			"name": "Blood rune",
+			"d": 14,
+			"i": 565
+		},
+		{
+			"name": "Rune arrow",
+			"d": 14,
+			"i": 892
+		},
+		{
+			"name": "Coal",
+			"d": 14,
+			"i": 453
+		},
+		{
+			"name": "Gold ore",
+			"d": 14,
+			"i": 444
+		},
+		{
+			"name": "Fire orb",
+			"d": 14,
+			"i": 569
+		},
+		{
+			"name": "Grimy avantoe",
+			"d": 14,
+			"i": 211
+		},
+		{
+			"name": "Grimy cadantine",
+			"d": 14,
+			"i": 215
+		},
+		{
+			"name": "Grimy dwarf weed",
+			"d": 14,
+			"i": 217
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 14,
+			"i": 209
+		},
+		{
+			"name": "Grimy kwuarm",
+			"d": 14,
+			"i": 213
+		},
+		{
+			"name": "Grimy lantadyme",
+			"d": 14,
+			"i": 2485
+		},
+		{
+			"name": "Grimy ranarr weed",
+			"d": 14,
+			"i": 207
+		},
+		{
+			"name": "Maple seed",
+			"d": 27.75,
+			"i": 5314
+		},
+		{
+			"name": "Palm tree seed",
+			"d": 27.75,
+			"i": 5289
+		},
+		{
+			"name": "Yew seed",
+			"d": 27.75,
+			"i": 5315
+		},
+		{
+			"name": "Coins",
+			"d": 14,
+			"i": 617
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 14,
+			"i": 2434
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 25,
+			"i": 2722
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 100,
+			"i": 12073
+		},
+		{
+			"name": "Bran",
+			"d": 3000
+		},
+		{
+			"name": "Ice element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Deadeye prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Mystic water staff",
+			"d": 14.25,
+			"i": 1403
+		},
+		{
+			"name": "Water battlestaff",
+			"d": 14.25,
+			"i": 1395
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.25,
+			"i": 1079
+		},
+		{
+			"name": "Rune sq shield",
+			"d": 14.25,
+			"i": 1185
+		},
+		{
+			"name": "Rune axe",
+			"d": 14.25,
+			"i": 1359
+		},
+		{
+			"name": "Water rune",
+			"d": 14.25,
+			"i": 555
+		},
+		{
+			"name": "Water orb",
+			"d": 14.25,
+			"i": 571
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 14.25,
+			"i": 5298
+		},
+		{
+			"name": "Cadantine seed",
+			"d": 14.25,
+			"i": 5301
+		},
+		{
+			"name": "Dwarf weed seed",
+			"d": 14.25,
+			"i": 5303
+		},
+		{
+			"name": "Irit seed",
+			"d": 14.25,
+			"i": 5297
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 14.25,
+			"i": 5299
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 14.25,
+			"i": 5302
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 14.25,
+			"i": 5295
+		}
+	],
+	"Branda the Fire Queen": [
+		{
+			"name": "Desiccated page",
+			"d": 1
+		},
+		{
+			"name": "Fire element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Mystic vigour prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Giantsoul amulet",
+			"d": 16
+		},
+		{
+			"name": "Mystic fire staff",
+			"d": 14,
+			"i": 1401
+		},
+		{
+			"name": "Fire battlestaff",
+			"d": 14,
+			"i": 1393
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 14,
+			"i": 1093
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 14,
+			"i": 1333
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 14,
+			"i": 1275
+		},
+		{
+			"name": "Fire rune",
+			"d": 14,
+			"i": 554
+		},
+		{
+			"name": "Chaos rune",
+			"d": 14,
+			"i": 562
+		},
+		{
+			"name": "Death rune",
+			"d": 14,
+			"i": 560
+		},
+		{
+			"name": "Nature rune",
+			"d": 14,
+			"i": 561
+		},
+		{
+			"name": "Law rune",
+			"d": 14,
+			"i": 563
+		},
+		{
+			"name": "Soul rune",
+			"d": 14,
+			"i": 566
+		},
+		{
+			"name": "Blood rune",
+			"d": 14,
+			"i": 565
+		},
+		{
+			"name": "Rune arrow",
+			"d": 14,
+			"i": 892
+		},
+		{
+			"name": "Coal",
+			"d": 14,
+			"i": 453
+		},
+		{
+			"name": "Gold ore",
+			"d": 14,
+			"i": 444
+		},
+		{
+			"name": "Fire orb",
+			"d": 14,
+			"i": 569
+		},
+		{
+			"name": "Grimy avantoe",
+			"d": 14,
+			"i": 211
+		},
+		{
+			"name": "Grimy cadantine",
+			"d": 14,
+			"i": 215
+		},
+		{
+			"name": "Grimy dwarf weed",
+			"d": 14,
+			"i": 217
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 14,
+			"i": 209
+		},
+		{
+			"name": "Grimy kwuarm",
+			"d": 14,
+			"i": 213
+		},
+		{
+			"name": "Grimy lantadyme",
+			"d": 14,
+			"i": 2485
+		},
+		{
+			"name": "Grimy ranarr weed",
+			"d": 14,
+			"i": 207
+		},
+		{
+			"name": "Maple seed",
+			"d": 27.75,
+			"i": 5314
+		},
+		{
+			"name": "Palm tree seed",
+			"d": 27.75,
+			"i": 5289
+		},
+		{
+			"name": "Yew seed",
+			"d": 27.75,
+			"i": 5315
+		},
+		{
+			"name": "Coins",
+			"d": 14,
+			"i": 617
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 14,
+			"i": 2434
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 25,
+			"i": 2722
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 100,
+			"i": 12073
+		},
+		{
+			"name": "Bran",
+			"d": 3000
+		},
+		{
+			"name": "Ice element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Deadeye prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Mystic water staff",
+			"d": 14.25,
+			"i": 1403
+		},
+		{
+			"name": "Water battlestaff",
+			"d": 14.25,
+			"i": 1395
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.25,
+			"i": 1079
+		},
+		{
+			"name": "Rune sq shield",
+			"d": 14.25,
+			"i": 1185
+		},
+		{
+			"name": "Rune axe",
+			"d": 14.25,
+			"i": 1359
+		},
+		{
+			"name": "Water rune",
+			"d": 14.25,
+			"i": 555
+		},
+		{
+			"name": "Water orb",
+			"d": 14.25,
+			"i": 571
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 14.25,
+			"i": 5298
+		},
+		{
+			"name": "Cadantine seed",
+			"d": 14.25,
+			"i": 5301
+		},
+		{
+			"name": "Dwarf weed seed",
+			"d": 14.25,
+			"i": 5303
+		},
+		{
+			"name": "Irit seed",
+			"d": 14.25,
+			"i": 5297
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 14.25,
+			"i": 5299
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 14.25,
+			"i": 5302
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 14.25,
+			"i": 5295
+		}
+	],
+	"Eldric the Ice King": [
+		{
+			"name": "Desiccated page",
+			"d": 1
+		},
+		{
+			"name": "Fire element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Mystic vigour prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Giantsoul amulet",
+			"d": 16
+		},
+		{
+			"name": "Mystic fire staff",
+			"d": 14,
+			"i": 1401
+		},
+		{
+			"name": "Fire battlestaff",
+			"d": 14,
+			"i": 1393
+		},
+		{
+			"name": "Rune plateskirt",
+			"d": 14,
+			"i": 1093
+		},
+		{
+			"name": "Rune scimitar",
+			"d": 14,
+			"i": 1333
+		},
+		{
+			"name": "Rune pickaxe",
+			"d": 14,
+			"i": 1275
+		},
+		{
+			"name": "Fire rune",
+			"d": 14,
+			"i": 554
+		},
+		{
+			"name": "Chaos rune",
+			"d": 14,
+			"i": 562
+		},
+		{
+			"name": "Death rune",
+			"d": 14,
+			"i": 560
+		},
+		{
+			"name": "Nature rune",
+			"d": 14,
+			"i": 561
+		},
+		{
+			"name": "Law rune",
+			"d": 14,
+			"i": 563
+		},
+		{
+			"name": "Soul rune",
+			"d": 14,
+			"i": 566
+		},
+		{
+			"name": "Blood rune",
+			"d": 14,
+			"i": 565
+		},
+		{
+			"name": "Rune arrow",
+			"d": 14,
+			"i": 892
+		},
+		{
+			"name": "Coal",
+			"d": 14,
+			"i": 453
+		},
+		{
+			"name": "Gold ore",
+			"d": 14,
+			"i": 444
+		},
+		{
+			"name": "Fire orb",
+			"d": 14,
+			"i": 569
+		},
+		{
+			"name": "Grimy avantoe",
+			"d": 14,
+			"i": 211
+		},
+		{
+			"name": "Grimy cadantine",
+			"d": 14,
+			"i": 215
+		},
+		{
+			"name": "Grimy dwarf weed",
+			"d": 14,
+			"i": 217
+		},
+		{
+			"name": "Grimy irit leaf",
+			"d": 14,
+			"i": 209
+		},
+		{
+			"name": "Grimy kwuarm",
+			"d": 14,
+			"i": 213
+		},
+		{
+			"name": "Grimy lantadyme",
+			"d": 14,
+			"i": 2485
+		},
+		{
+			"name": "Grimy ranarr weed",
+			"d": 14,
+			"i": 207
+		},
+		{
+			"name": "Maple seed",
+			"d": 27.75,
+			"i": 5314
+		},
+		{
+			"name": "Palm tree seed",
+			"d": 27.75,
+			"i": 5289
+		},
+		{
+			"name": "Yew seed",
+			"d": 27.75,
+			"i": 5315
+		},
+		{
+			"name": "Coins",
+			"d": 14,
+			"i": 617
+		},
+		{
+			"name": "Prayer potion(4)",
+			"d": 14,
+			"i": 2434
+		},
+		{
+			"name": "Clue scroll (hard)",
+			"d": 25,
+			"i": 2722
+		},
+		{
+			"name": "Clue scroll (elite)",
+			"d": 100,
+			"i": 12073
+		},
+		{
+			"name": "Bran",
+			"d": 3000
+		},
+		{
+			"name": "Ice element staff crown",
+			"d": 75
+		},
+		{
+			"name": "Deadeye prayer scroll",
+			"d": 75
+		},
+		{
+			"name": "Mystic water staff",
+			"d": 14.25,
+			"i": 1403
+		},
+		{
+			"name": "Water battlestaff",
+			"d": 14.25,
+			"i": 1395
+		},
+		{
+			"name": "Rune platelegs",
+			"d": 14.25,
+			"i": 1079
+		},
+		{
+			"name": "Rune sq shield",
+			"d": 14.25,
+			"i": 1185
+		},
+		{
+			"name": "Rune axe",
+			"d": 14.25,
+			"i": 1359
+		},
+		{
+			"name": "Water rune",
+			"d": 14.25,
+			"i": 555
+		},
+		{
+			"name": "Water orb",
+			"d": 14.25,
+			"i": 571
+		},
+		{
+			"name": "Avantoe seed",
+			"d": 14.25,
+			"i": 5298
+		},
+		{
+			"name": "Cadantine seed",
+			"d": 14.25,
+			"i": 5301
+		},
+		{
+			"name": "Dwarf weed seed",
+			"d": 14.25,
+			"i": 5303
+		},
+		{
+			"name": "Irit seed",
+			"d": 14.25,
+			"i": 5297
+		},
+		{
+			"name": "Kwuarm seed",
+			"d": 14.25,
+			"i": 5299
+		},
+		{
+			"name": "Lantadyme seed",
+			"d": 14.25,
+			"i": 5302
+		},
+		{
+			"name": "Ranarr seed",
+			"d": 14.25,
+			"i": 5295
 		}
 	]
 }
